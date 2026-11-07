@@ -1,0 +1,12 @@
+dist/
+dist-fixtures/
+node_modules/
+.astro/
+.wrangler/
+playwright-report/
+test-results/
+package-lock.json
+src/data/icons.ts
+tests/fixtures/
+tests/e2e/__screenshots__/
+public/

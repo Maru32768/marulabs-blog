@@ -1,0 +1,27 @@
+---
+import type { MarkdownHeading } from "astro";
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+let major = 0;
+const items = headings
+  .filter((h) => h.depth === 2 || h.depth === 3)
+  .map((h) => {
+    if (h.depth === 2) major += 1;
+    return { ...h, number: h.depth === 2 ? `${major}.` : "" };
+  });
+---
+
+<ol data-toc>
+  {items.map((h) => (
+    <li class:list={[h.depth === 3 && "toc-sub"]}>
+      <a href={`#${h.slug}`}>
+        {h.number && <span class="toc-num">{h.number}</span>}
+        {h.text}
+      </a>
+    </li>
+  ))}
+</ol>

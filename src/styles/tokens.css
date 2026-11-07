@@ -1,0 +1,114 @@
+/*
+ * Design tokens taken from the Claude Design prototype.
+ * Colors and gradients are unchanged. Font sizes are raised from the prototype:
+ * article 15 -> 17px, UI 12 -> 14px, metadata 11 -> 13px, tags 10 -> 12px.
+ */
+:root {
+  /* Page frame */
+  --c-page: #1b2331;
+  --c-shell: #d5dce8;
+  --c-shell-border: #070c16;
+  --c-shell-ring: #3a475d;
+
+  /* Text */
+  --c-text: #1a2233;
+  --c-text-2: #3c475a;
+  --c-text-3: #4a5568;
+  --c-label: #2f3d55;
+  --c-head-text: #22314d;
+  --c-heading: #12203a;
+  --c-heading-ui: #16233d;
+
+  /* Links and focus */
+  --c-link: #1c3f8c;
+  --c-link-hover: #b8430b;
+  --c-focus: #f2a33a;
+
+  /* Tables and panels */
+  --c-panel-border: #2a3953;
+  --c-panel-rule: #1b2d4d;
+  --c-grid: #b3bed0;
+  --c-grid-soft: #c7d0de;
+  --c-row: #f5f7fb;
+  --c-row-alt: #e8ecf3;
+  --c-row-soft: #eef1f7;
+  --c-row-icon: #e3e8f1;
+  --c-row-hover: #fdf6e6;
+  --c-article: #f7f8fb;
+  --c-box: #f4f6fa;
+  --c-box-border: #7d8ba3;
+  --c-strip: #e9edf4;
+  --c-strip-border: #a3afc3;
+  --c-pager: #dfe5ee;
+  --c-pager-border: #8b99b2;
+
+  /* Accents */
+  --c-accent: #2c4a78;
+  --c-amber: #f5b04a;
+  --c-amber-text: #ffd99a;
+  --c-orange: #c44a00;
+
+  /* Notice and callouts */
+  --c-notice-bg: #fff6dc;
+  --c-notice-border: #c9a24a;
+  --c-notice-text: #3a2f12;
+  --c-notice-head: #6a4500;
+  --c-note-bg: #f1f6ec;
+  --c-note-border: #8fae86;
+  --c-note-head: #1f4a22;
+
+  /* Code */
+  --c-code-bg: #fbfbfd;
+  --c-code-gutter: #e9edf4;
+  --c-code-gutter-text: #5d6880;
+  --c-output-bg: #10192a;
+  --c-output-text: #d8e1ee;
+
+  /* Gradients */
+  --grad-header: linear-gradient(180deg, #24467c 0%, #163160 55%, #0e2148 100%);
+  --grad-nav: linear-gradient(180deg, #7086a8 0%, #50668b 50%, #3a4e70 100%);
+  --grad-nav-current: linear-gradient(180deg, #24344f, #31456a);
+  --grad-tcat: linear-gradient(180deg, #5776a6 0%, #3a5a8b 48%, #2c4a78 100%);
+  --grad-tcat-strong: linear-gradient(180deg, #34507e 0%, #213a63 100%);
+  --grad-thead: linear-gradient(180deg, #f1f4f9 0%, #d3dbe8 100%);
+  --grad-btn: linear-gradient(180deg, #fdfdfe, #d7dde7);
+  --grad-btn-active: linear-gradient(180deg, #cfd6e2, #eef1f6);
+
+  /* Type */
+  --font-ui: Verdana, Tahoma, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, "Noto Sans JP", sans-serif;
+  --font-body: "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, "Noto Sans JP", Verdana, sans-serif;
+  --font-mono: Consolas, "Lucida Console", "DejaVu Sans Mono", monospace;
+  --font-pixel: Silkscreen, Verdana, sans-serif;
+
+  --fs-pixel: 10px;
+  --fs-micro: 12px;
+  --fs-small: 13px;
+  --fs-ui: 14px;
+  --fs-title: 15px;
+  --fs-box-title: 16px;
+  --fs-article: 17px;
+  --fs-article-note: 16px;
+  --fs-code: 14.5px;
+  --fs-article-h3: 19px;
+  --fs-article-h2: 22px;
+  --fs-article-h1: 28px;
+  --fs-site-title: 28px;
+
+  /* Layout */
+  --shell-width: 1180px;
+  --gap: 12px;
+}
+
+@media (max-width: 720px) {
+  :root {
+    --fs-ui: 15px;
+    --fs-title: 16px;
+    --fs-box-title: 16px;
+    --fs-code: 14px;
+    --fs-article-h3: 18px;
+    --fs-article-h2: 20px;
+    --fs-article-h1: 24px;
+    --fs-site-title: 20px;
+    --gap: 10px;
+  }
+}

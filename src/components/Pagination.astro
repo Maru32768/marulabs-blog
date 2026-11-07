@@ -1,0 +1,63 @@
+---
+import { paginationWindow } from "../lib/articles.ts";
+
+interface Props {
+  current: number;
+  last: number;
+  total: number;
+  from: number;
+  to: number;
+  urlFor: (page: number) => string;
+}
+
+const { current, last, total, from, to, urlFor } = Astro.props;
+const prevUrl = current > 1 ? urlFor(current - 1) : undefined;
+const nextUrl = current < last ? urlFor(current + 1) : undefined;
+---
+
+<div class="pager">
+  <span class="only-desktop">{total === 0 ? "0件" : `${total}件中 ${from}–${to}件を表示`}</span>
+  {last > 1 && (
+    <nav aria-label="ページ送り">
+      {prevUrl ? (
+        <a href={prevUrl} rel="prev" class="pn pn-step">
+          ‹ 前へ
+        </a>
+      ) : (
+        <span class="pn pn-step only-mobile-flex" aria-disabled="true">
+          ‹ 前へ
+        </span>
+      )}
+      <span class="pn pn--label">
+        ページ {current} / {last}
+      </span>
+      {paginationWindow(current, last).map((p) =>
+        p === "gap" ? (
+          <span class="pn-gap">…</span>
+        ) : p === current ? (
+          <span class="pn pn-number" aria-current="page">
+            {p}
+          </span>
+        ) : (
+          <a href={urlFor(p)} class="pn pn-number">
+            {p}
+          </a>
+        ),
+      )}
+      {nextUrl ? (
+        <a href={nextUrl} rel="next" class="pn pn-step">
+          次へ ›
+        </a>
+      ) : (
+        <span class="pn pn-step only-mobile-flex" aria-disabled="true">
+          次へ ›
+        </span>
+      )}
+      {current < last && (
+        <a href={urlFor(last)} class="pn pn-last">
+          最後 »
+        </a>
+      )}
+    </nav>
+  )}
+</div>

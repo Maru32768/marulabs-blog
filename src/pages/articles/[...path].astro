@@ -1,0 +1,69 @@
+---
+import type { GetStaticPaths } from "astro";
+import Pagination from "../../components/Pagination.astro";
+import ThreadTable from "../../components/ThreadTable.astro";
+import ListLayout from "../../layouts/ListLayout.astro";
+import { ARTICLE_PAGE_SIZE, articleSortKeys, articleSorts, type ArticleSort } from "../../lib/articles.ts";
+import { getArticles, type Article } from "../../lib/collection.ts";
+
+export const getStaticPaths = (async () => {
+  const articles = await getArticles();
+  const lastPage = Math.max(1, Math.ceil(articles.length / ARTICLE_PAGE_SIZE));
+  return articleSortKeys.flatMap((sort) =>
+    Array.from({ length: lastPage }, (_, i) => {
+      const page = i + 1;
+      const segments = [articleSorts[sort].path, page > 1 ? `page/${page}` : ""].filter(Boolean);
+      return { params: { path: segments.join("/") || undefined }, props: { sort, page, lastPage } };
+    }),
+  );
+}) satisfies GetStaticPaths;
+
+interface Props {
+  sort: ArticleSort;
+  page: number;
+  lastPage: number;
+}
+
+const { sort, page, lastPage } = Astro.props;
+const all: Article[] = await getArticles();
+const config = articleSorts[sort];
+const ordered = config.order(all);
+const from = (page - 1) * ARTICLE_PAGE_SIZE;
+const shown = ordered.slice(from, from + ARTICLE_PAGE_SIZE);
+const urlFor = (p: number) => (p === 1 ? config.base : `${config.base}page/${p}/`);
+---
+
+<ListLayout
+  title={page > 1 ? `記事一覧 (${page})` : "記事一覧"}
+  nav="articles"
+  trail={[{ label: "記事一覧" }]}
+  heading="記事一覧"
+>
+  <section class="panel" aria-labelledby="list-h">
+    <div class="tcat tcat--strong panel-head">
+      <h2 id="list-h">記事一覧</h2>
+      <span class="panel-note">
+        並び順:{" "}
+        {articleSortKeys.map((key, i) => (
+          <>
+            {i > 0 && " | "}
+            {key === sort ? (
+              <b>{articleSorts[key].label}</b>
+            ) : (
+              <a href={articleSorts[key].base}>{articleSorts[key].label}</a>
+            )}
+          </>
+        ))}
+      </span>
+    </div>
+    <ThreadTable articles={shown} />
+    <Pagination
+      current={page}
+      last={lastPage}
+      total={all.length}
+      from={all.length === 0 ? 0 : from + 1}
+      to={from + shown.length}
+      urlFor={urlFor}
+    />
+  </section>
+</ListLayout>

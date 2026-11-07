@@ -1,0 +1,87 @@
+---
+import { categoryBySlug, kinds } from "../data/taxonomy.ts";
+import { articleUrl, categoryUrl, readingMinutes, tagUrl } from "../lib/articles.ts";
+import type { Article } from "../lib/collection.ts";
+import { formatDate, formatDateTime, formatShort } from "../lib/format.ts";
+import Icon from "./Icon.astro";
+
+interface Props {
+  articles: Article[];
+  /** Adds the fixed "about this site" row from the design. */
+  pinned?: boolean;
+}
+
+const { articles, pinned = false } = Astro.props;
+---
+
+<div class="table-x">
+  <div class="thread-table">
+    <div class="thead thread-grid">
+      <span></span>
+      <span>タイトル / タグ</span>
+      <span>カテゴリ</span>
+      <span class="thead-right">更新 ▾</span>
+      <span class="thead-center">読了</span>
+      <span class="thead-center">改訂</span>
+    </div>
+    {pinned && (
+      <div class="trow thread-grid thread-row--pinned">
+        <div class="cell cell-icon">
+          <Icon name="pin" size={22} label="固定記事" />
+        </div>
+        <div class="cell cell-main hl">
+          <span class="pfx pfx-pin">固定:</span>
+          <a class="thread-title" href="/about/">
+            このサイトについて — 記事の改訂ルールと連絡先
+          </a>
+        </div>
+        <div class="cell cell-cat">サイト情報</div>
+        <div class="cell cell-date">—</div>
+        <div class="cell cell-num">—</div>
+        <div class="cell cell-num cell-num--light">—</div>
+      </div>
+    )}
+    {articles.map((a) => {
+      const category = categoryBySlug(a.data.category);
+      const kind = kinds[a.data.kind];
+      const minutes = readingMinutes(a.body);
+      return (
+        <div class="trow thread-grid" data-updated={a.data.updatedAt.toISOString()}>
+          <div class="cell cell-icon">
+            <Icon name="threadOld" size={22} label="更新なし" class="state-old" />
+            <Icon name="threadNew" size={22} label="最近更新" class="state-new" />
+          </div>
+          <div class="cell cell-main hl">
+            <div>
+              <span class:list={["pfx", kind.className]}>[{kind.label}]</span>
+              <a class="thread-title" href={articleUrl(a)}>
+                {a.data.title}
+              </a>
+              <span class="new">new</span>
+            </div>
+            <div class="thread-tags">
+              {a.data.tags.map((t) => (
+                <a href={tagUrl(t)} class="tag">
+                  {t}
+                </a>
+              ))}
+            </div>
+            <div class="thread-meta-mobile">
+              {category.short} · {formatShort(a.data.updatedAt)} 更新 · {minutes}分 · r{a.data.revision}
+            </div>
+          </div>
+          <div class="cell cell-cat">
+            <a href={categoryUrl(a.data.category)}>{category.name}</a>
+          </div>
+          <div class="cell cell-date">
+            <b>{formatDateTime(a.data.updatedAt)}</b>
+            <span>投稿 {formatDate(a.data.publishedAt)}</span>
+          </div>
+          <div class="cell cell-num">{minutes}分</div>
+          <div class="cell cell-num cell-num--light">r{a.data.revision}</div>
+        </div>
+      );
+    })}
+  </div>
+</div>
+{articles.length === 0 && <div class="empty">まだ公開記事はありません。</div>}

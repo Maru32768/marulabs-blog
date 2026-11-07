@@ -1,0 +1,37 @@
+---
+import Crumbs from "../components/Crumbs.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="ページが見つかりません"
+  description="お探しのページは見つかりませんでした。"
+  nav="none"
+  noindex
+  noCount
+>
+  <div class="content">
+    <main id="main" class="content-main">
+      <Crumbs trail={[{ label: "404" }]} heading="ページが見つかりません" />
+      <section class="panel" aria-labelledby="nf-h">
+        <h2 id="nf-h" class="tcat tcat--strong panel-title">
+          エラー
+        </h2>
+        <div class="not-found">
+          <p class="not-found-code">404</p>
+          <p>お探しのページは見つかりませんでした。URLが変わったか、記事が移動した可能性があります。</p>
+          <form action="/search/" method="get" role="search" class="not-found-search">
+            <label for="nf-q">サイト内検索</label>
+            <input id="nf-q" name="q" type="search" />
+            <button type="submit" class="btn">
+              検索
+            </button>
+          </form>
+          <p style="margin-top: 0.8em">
+            <a href="/">トップページ</a> · <a href="/articles/">記事一覧</a> · <a href="/categories/">カテゴリ</a>
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
+</BaseLayout>

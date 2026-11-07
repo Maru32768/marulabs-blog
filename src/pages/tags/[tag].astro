@@ -1,0 +1,30 @@
+---
+import type { GetStaticPaths } from "astro";
+import ThreadTable from "../../components/ThreadTable.astro";
+import ListLayout from "../../layouts/ListLayout.astro";
+import { tagCounts } from "../../lib/articles.ts";
+import { getArticles } from "../../lib/collection.ts";
+
+export const getStaticPaths = (async () => {
+  const articles = await getArticles();
+  return tagCounts(articles).map(({ tag }) => ({ params: { tag } }));
+}) satisfies GetStaticPaths;
+
+const { tag } = Astro.params;
+const articles = (await getArticles()).filter((a) => a.data.tags.includes(tag));
+---
+
+<ListLayout
+  title={`タグ: ${tag}`}
+  nav="tags"
+  trail={[{ label: "タグ", href: "/tags/" }, { label: tag }]}
+  heading={`タグ: ${tag}`}
+>
+  <section class="panel" aria-labelledby="tag-h">
+    <div class="tcat tcat--strong panel-head">
+      <h2 id="tag-h">{tag}</h2>
+      <span class="panel-note">{articles.length} 記事</span>
+    </div>
+    <ThreadTable articles={articles} />
+  </section>
+</ListLayout>

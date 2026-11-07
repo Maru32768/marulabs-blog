@@ -1,0 +1,96 @@
+---
+import CategoryTable from "../components/CategoryTable.astro";
+import Crumbs from "../components/Crumbs.astro";
+import Icon from "../components/Icon.astro";
+import Pagination from "../components/Pagination.astro";
+import SiteSidebar from "../components/SiteSidebar.astro";
+import ThreadTable from "../components/ThreadTable.astro";
+import { site } from "../data/site.ts";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { articleUrl, changelogEntries, siteStats } from "../lib/articles.ts";
+import { getArticles } from "../lib/collection.ts";
+import { formatDate } from "../lib/format.ts";
+
+const LATEST_COUNT = 7;
+
+const articles = await getArticles();
+const stats = siteStats(articles);
+const latest = articles.slice(0, LATEST_COUNT);
+const notice = changelogEntries(articles)[0];
+---
+
+<BaseLayout nav="home">
+  <div class="welcome" slot="strip">
+    <span>{site.welcome}</span>
+    <span>
+      記事 <b>{stats.articles}</b> · 改訂 <b>{stats.revisions}</b> · カテゴリ <b>{stats.categories}</b> · 開設{" "}
+      {site.launched.year}/{String(site.launched.month).padStart(2, "0")}
+    </span>
+  </div>
+  <div class="content">
+    <main id="main" class="content-main">
+      <Crumbs trail={[{ label: "インデックス" }]} heading="技術ブログ インデックス" />
+
+      {notice && (
+        <div class="notice">
+          <Icon name="info" size={14} />
+          <div>
+            <span class="notice-label">お知らせ:</span>{" "}
+            <a href={articleUrl(notice.article)}>{notice.article.data.title}</a>
+            {notice.type === "new"
+              ? " を公開しました。"
+              : ` を改訂しました（r${notice.revision}${notice.note ? `: ${notice.note}` : ""}）。`}
+            <span class="notice-date"> — {formatDate(notice.date)}</span>
+          </div>
+        </div>
+      )}
+
+      <CategoryTable articles={articles} />
+
+      <section class="panel" aria-labelledby="la-h">
+        <div class="tcat tcat--strong panel-head">
+          <h2 id="la-h">最新の記事</h2>
+          <span class="panel-note">
+            並び順: <b>更新日</b>
+            <span class="only-desktop">
+              {" "}
+              | <a href="/articles/sort/published/">投稿日</a> | <a href="/articles/sort/revisions/">改訂数</a>
+            </span>
+          </span>
+        </div>
+        <ThreadTable articles={latest} pinned />
+        <Pagination
+          current={1}
+          last={1}
+          total={stats.articles}
+          from={stats.articles === 0 ? 0 : 1}
+          to={latest.length}
+          urlFor={() => "/articles/"}
+        />
+        {stats.articles > LATEST_COUNT && (
+          <div class="panel-foot panel-foot--end">
+            <a href="/articles/">すべての記事 »</a>
+          </div>
+        )}
+      </section>
+
+      <div class="legend">
+        <span>
+          <Icon name="folderNew" size={18} />
+          14日以内に新着・改訂あり
+        </span>
+        <span>
+          <Icon name="folderOld" size={18} />
+          新着なし
+        </span>
+        <span>
+          <Icon name="pin" size={16} />
+          固定記事
+        </span>
+      </div>
+    </main>
+    <aside class="content-side" aria-label="サイドバー">
+      <SiteSidebar articles={articles} />
+    </aside>
+  </div>
+</BaseLayout>

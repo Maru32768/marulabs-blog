@@ -1,0 +1,20 @@
+node_modules/
+dist/
+dist-fixtures/
+.astro/
+.wrangler/
+.dev.vars*
+.env
+.env.*
+test-results/
+playwright-report/
+coverage/
+
+# Terraform state stays out of this public repository, see docs/DECISIONS.md.
+terraform/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfplan
+crash.log
+terraform/backend.hcl

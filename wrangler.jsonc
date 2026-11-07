@@ -1,0 +1,42 @@
+{
+  // Application deployment config. The Worker shell, the D1 database and the custom
+  // domain themselves are owned by Terraform (see terraform/ and docs/DECISIONS.md).
+  // There is deliberately no `routes` key: blog.marulabs.dev must not be managed from here.
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "marulabs-blog",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-11-01",
+  "workers_dev": false,
+  // Version URLs for PR previews. They share production bindings; the Worker refuses
+  // to count on any host other than COUNT_HOST.
+  "preview_urls": true,
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*"],
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "marulabs-blog",
+      // Not a secret: output `d1_database_id` from Terraform.
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations",
+    },
+  ],
+  "ratelimits": [
+    {
+      // Global per-location write cap. 1 write/s stays under the D1 free tier (100k/day).
+      "name": "HIT_LIMITER",
+      "namespace_id": "1001",
+      "simple": { "limit": 60, "period": 60 },
+    },
+  ],
+  "vars": {
+    "COUNT_HOST": "blog.marulabs.dev",
+  },
+  // No Workers Logs: request metadata is not needed to run a counter.
+  "observability": { "enabled": false },
+}

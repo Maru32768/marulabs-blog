@@ -1,0 +1,33 @@
+---
+import Icon from "./Icon.astro";
+
+interface Props {
+  trail: { label: string; href?: string }[];
+  heading?: string;
+}
+
+const { trail, heading } = Astro.props;
+---
+
+<div class="crumbs">
+  <div>
+    <nav class="crumbs-trail" aria-label="パンくずリスト">
+      <Icon name="house" size={11} />
+      <a href="/">Maru's System Lab</a>
+      {trail.map((item, i) => (
+        <>
+          <span aria-hidden="true">›</span>
+          {item.href ? (
+            <a href={item.href}>{item.label}</a>
+          ) : (
+            <span class:list={[!heading && i === trail.length - 1 && "crumbs-current"]} aria-current="page">
+              {item.label}
+            </span>
+          )}
+        </>
+      ))}
+    </nav>
+    {heading && <h1>{heading}</h1>}
+  </div>
+  <slot />
+</div>

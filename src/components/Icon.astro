@@ -1,0 +1,27 @@
+---
+import { icons, type IconName } from "../data/icons.ts";
+
+interface Props {
+  name: IconName;
+  size?: number;
+  width?: number;
+  height?: number;
+  /** Accessible name. Without it the icon is decorative. */
+  label?: string;
+  class?: string;
+}
+
+const { name, size = 16, width = size, height = size, label, class: className } = Astro.props;
+const icon = icons[name];
+const a11y = label ? { role: "img" as const, "aria-label": label } : { "aria-hidden": "true" as const };
+---
+
+<svg
+  width={width}
+  height={height}
+  viewBox={icon.viewBox}
+  shape-rendering="crispEdges"
+  class={className}
+  {...a11y}
+  set:html={icon.body}
+/>

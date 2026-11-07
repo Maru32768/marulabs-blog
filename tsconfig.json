@@ -1,0 +1,10 @@
+{
+  "extends": "astro/tsconfigs/strictest",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "types": ["node"]
+  },
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["node_modules", "dist", "dist-fixtures", "worker", "tests/worker", "tests/fixtures"]
+}

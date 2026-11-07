@@ -1,0 +1,33 @@
+---
+import { categories } from "../data/taxonomy.ts";
+
+interface Props {
+  currentCategory?: string | undefined;
+}
+
+const { currentCategory } = Astro.props;
+---
+
+<footer class="tcat ft-bar">
+  <form class="ft-jump" action="/categories/" method="get" data-jump>
+    <label for="jump">カテゴリへ移動</label>
+    <div class="ft-jump-controls">
+      <select id="jump">
+        {categories.map((c) => (
+          <option value={`/categories/${c.slug}/`} selected={c.slug === currentCategory}>
+            {c.name}
+          </option>
+        ))}
+      </select>
+      <button type="submit" class="btn">
+        Go
+      </button>
+    </div>
+  </form>
+  <div class="ft-links">
+    <a href="#top">ページ先頭へ ▲</a>
+    <a href="/rss.xml">RSS</a>
+    <a href="/atom.xml">Atom</a>
+    <a href="/about/#contact">連絡先</a>
+  </div>
+</footer>

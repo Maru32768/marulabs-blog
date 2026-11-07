@@ -1,0 +1,137 @@
+---
+import { site } from "../data/site.ts";
+import { archiveMonths, archiveUrl, articleUrl, changelogEntries, tagCounts, tagUrl } from "../lib/articles.ts";
+import type { Article } from "../lib/collection.ts";
+import { formatShort } from "../lib/format.ts";
+import Counter from "./Counter.astro";
+import Icon from "./Icon.astro";
+import SidePanel from "./SidePanel.astro";
+
+interface Props {
+  articles: Article[];
+}
+
+const { articles } = Astro.props;
+const log = changelogEntries(articles);
+const tags = tagCounts(articles);
+const months = archiveMonths(articles);
+const recentMonths = months.slice(0, 4);
+const olderMonths = months.slice(4);
+const devlogCount = articles.filter((a) => a.data.category === "development-logs").length;
+---
+
+<SidePanel id="sb-me" title="管理人" class="panel-profile">
+  <div class="profile">
+    <div class="avatar">
+      <Icon name="avatar" size={56} label="Maruのアバター" />
+    </div>
+    <div>
+      <div class="profile-name">{site.author}</div>
+      <div class="profile-role">Software Engineer</div>
+      <p class="profile-bio">Backend / Distributed Systems。仕組みを読んで、計測して、書き残す。</p>
+    </div>
+  </div>
+  <dl class="kv">
+    <dt>興味</dt>
+    <dd>DB internals, OS, Networking, SRE</dd>
+    <dt>開設</dt>
+    <dd>
+      {site.launched.year}年{site.launched.month}月
+    </dd>
+    <dt>記事</dt>
+    <dd>
+      {articles.length}（うち開発ログ {devlogCount}）
+    </dd>
+  </dl>
+  <div class="link-row" slot="foot">
+    <a href={site.github}>GitHub</a>
+    <a href={`${site.repo}/issues`}>Issues</a>
+    <a href="/about/">このサイトについて</a>
+  </div>
+</SidePanel>
+
+<SidePanel id="sb-log" title="更新履歴" class="panel-log">
+  {log.length === 0 ? (
+    <div class="empty" style="border-top: 0">
+      まだ更新はありません。
+    </div>
+  ) : (
+    <ul class="side-list">
+      {log.slice(0, 5).map((e) => (
+        <li>
+          <span class="mono-date">{formatShort(e.date)}</span>{" "}
+          {e.type === "new" ? <b class="log-new">新規</b> : <b class="log-rev">改訂 r{e.revision}</b>}{" "}
+          <a href={articleUrl(e.article)}>{e.article.data.title}</a>
+          {e.note && (
+            <>
+              <br />
+              {e.note}
+            </>
+          )}
+        </li>
+      ))}
+    </ul>
+  )}
+  <div class="panel-foot panel-foot--end" slot="foot">
+    <a href="/changelog/">すべての更新履歴 »</a>
+  </div>
+</SidePanel>
+
+<Counter />
+
+{tags.length > 0 && (
+  <SidePanel id="sb-tag" title="タグ" class="panel-tags">
+    <div class="tag-cloud">
+      {tags.slice(0, 15).map((t) => (
+        <a href={tagUrl(t.tag)} class="tag">
+          {t.tag} <span class="tag-count">{t.count}</span>
+        </a>
+      ))}
+    </div>
+  </SidePanel>
+)}
+
+{months.length > 0 && (
+  <SidePanel id="sb-arc" title="アーカイブ" class="panel-archive">
+    <ul class="side-list side-list--counted">
+      {recentMonths.map((m) => (
+        <li>
+          <a href={archiveUrl(m.year, m.month)}>
+            {m.year}年{m.month}月
+          </a>
+          <span class="count">{m.articles.length}</span>
+        </li>
+      ))}
+    </ul>
+    {olderMonths.length > 0 && (
+      <form class="side-jump" action="/archive/" method="get" data-jump slot="foot">
+        <label for="arc">過去分</label>
+        <select id="arc">
+          {olderMonths.map((m) => (
+            <option value={archiveUrl(m.year, m.month)}>
+              {m.year}年{m.month}月 ({m.articles.length})
+            </option>
+          ))}
+        </select>
+        <button type="submit" class="btn btn--sm">
+          Go
+        </button>
+      </form>
+    )}
+  </SidePanel>
+)}
+
+<SidePanel id="sb-info" title="サイト情報" class="panel-info">
+  <dl class="kv">
+    <dt>構成</dt>
+    <dd>静的HTML（Astro / Cloudflare Workers）</dd>
+    <dt>フィード</dt>
+    <dd>
+      <a href="/rss.xml">RSS 2.0</a> / <a href="/atom.xml">Atom 1.0</a>
+    </dd>
+    <dt>ライセンス</dt>
+    <dd>{site.license}</dd>
+    <dt>計測</dt>
+    <dd>累計PVのみ。解析タグ・Cookieなし</dd>
+  </dl>
+</SidePanel>

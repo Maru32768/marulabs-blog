@@ -1,0 +1,50 @@
+---
+import { site } from "../data/site.ts";
+import { formatDateTime } from "../lib/format.ts";
+import Icon from "./Icon.astro";
+
+interface Props {
+  lastUpdated: Date | undefined;
+}
+
+const { lastUpdated } = Astro.props;
+---
+
+<header class="hd">
+  <a class="hd-brand" href="/">
+    <Icon name="chip" width={45} height={48} class="hd-logo" />
+    <span class="hd-titles">
+      <span class="hd-title">
+        Maru's <span class="hd-title-em">System</span> Lab
+      </span>
+      <span class="hd-tagline">
+        <span class="only-desktop">{site.tagline}</span>
+        <span class="only-mobile">{site.taglineShort}</span>
+      </span>
+      <span class="hd-sub only-desktop">{site.description}</span>
+    </span>
+  </a>
+  <div class="hd-tools">
+    <form class="hd-search" action="/search/" method="get" role="search">
+      <label for="hq">サイト内検索</label>
+      <input id="hq" name="q" type="search" placeholder="vacuum, page cache …" />
+      <button type="submit" class="btn">
+        検索
+      </button>
+    </form>
+    <div class="hd-meta">
+      {lastUpdated && <span>最終更新 {formatDateTime(lastUpdated)} JST</span>}
+      <a href="/rss.xml" class="xml">
+        RSS
+      </a>
+      <a href="/atom.xml" class="xml">
+        ATOM
+      </a>
+    </div>
+  </div>
+  <a class="hd-search-btn" href="/search/" aria-label="サイト内検索">
+    <span>
+      <Icon name="search" size={16} />
+    </span>
+  </a>
+</header>

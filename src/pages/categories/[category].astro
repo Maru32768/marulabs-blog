@@ -1,0 +1,42 @@
+---
+import type { GetStaticPaths } from "astro";
+import ThreadTable from "../../components/ThreadTable.astro";
+import { categories, type Category } from "../../data/taxonomy.ts";
+import ListLayout from "../../layouts/ListLayout.astro";
+import { categoryStats } from "../../lib/articles.ts";
+import { getArticles } from "../../lib/collection.ts";
+
+export const getStaticPaths = (() =>
+  categories.map((category) => ({
+    params: { category: category.slug },
+    props: { category },
+  }))) satisfies GetStaticPaths;
+
+interface Props {
+  category: Category;
+}
+
+const { category } = Astro.props;
+const articles = await getArticles();
+const stats = categoryStats(articles, category.slug);
+const isDevlog = category.slug === "development-logs";
+---
+
+<ListLayout
+  title={category.name}
+  description={category.desc}
+  nav={isDevlog ? "devlog" : "categories"}
+  trail={[{ label: "カテゴリ", href: "/categories/" }, { label: category.name }]}
+  heading={category.name}
+  currentCategory={category.slug}
+>
+  <section class="panel" aria-labelledby="cat-h">
+    <div class="tcat tcat--strong panel-head">
+      <h2 id="cat-h">{category.desc}</h2>
+      <span class="panel-note">
+        {stats.articles.length} 記事 · {stats.revisions} 改訂
+      </span>
+    </div>
+    <ThreadTable articles={stats.articles} />
+  </section>
+</ListLayout>

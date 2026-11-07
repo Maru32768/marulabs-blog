@@ -1,0 +1,361 @@
+---
+import { render } from "astro:content";
+import type { GetStaticPaths } from "astro";
+import ArticleToc from "../../components/ArticleToc.astro";
+import Crumbs from "../../components/Crumbs.astro";
+import Icon from "../../components/Icon.astro";
+import SidePanel from "../../components/SidePanel.astro";
+import { site } from "../../data/site.ts";
+import { categories, categoryBySlug, groupOfCategory, kinds } from "../../data/taxonomy.ts";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import "../../styles/article.css";
+import {
+  articleUrl,
+  categoryStats,
+  categoryUrl,
+  charCount,
+  prevNext,
+  readingMinutes,
+  relatedArticles,
+  seriesParts,
+  tagUrl,
+} from "../../lib/articles.ts";
+import { getArticles, type Article } from "../../lib/collection.ts";
+import { formatDate, formatDateTime } from "../../lib/format.ts";
+
+export const getStaticPaths = (async () => {
+  const articles = await getArticles();
+  return articles.map((article) => ({ params: { slug: article.data.slug }, props: { article } }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  article: Article;
+}
+
+const { article } = Astro.props;
+const { data } = article;
+const all = await getArticles();
+const { Content, headings } = await render(article);
+const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
+
+const category = categoryBySlug(data.category);
+const group = groupOfCategory(data.category);
+const kind = kinds[data.kind];
+const minutes = readingMinutes(article.body);
+const { prev, next } = prevNext(article, all);
+const related = relatedArticles(article, all);
+const series = seriesParts(article, all);
+const changelog = [...(data.changelog ?? [])].sort((a, b) => b.revision - a.revision);
+const lastChange = changelog[0];
+const sourcePath = article.filePath ?? "";
+const url = new URL(articleUrl(article), site.url).href;
+const jsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: data.title,
+  description: data.description,
+  url,
+  datePublished: data.publishedAt.toISOString(),
+  dateModified: data.updatedAt.toISOString(),
+  author: { "@type": "Person", name: site.author, url: site.github },
+  inLanguage: "ja",
+}).replaceAll("<", "\\u003c");
+---
+
+<BaseLayout
+  title={data.title}
+  description={data.description}
+  nav="articles"
+  ogType="article"
+  currentCategory={data.category}
+>
+  <Fragment slot="head">
+    <meta property="article:published_time" content={data.publishedAt.toISOString()} />
+    <meta property="article:modified_time" content={data.updatedAt.toISOString()} />
+    {data.tags.map((t) => (
+      <meta property="article:tag" content={t} />
+    ))}
+    <script type="application/ld+json" is:inline set:html={jsonLd} />
+  </Fragment>
+  <div class="content">
+    <div class="content-main" style="flex-basis: 100%">
+      <Crumbs
+        trail={[
+          { label: group.title, href: `/categories/#${group.id}` },
+          { label: category.name, href: categoryUrl(data.category) },
+          { label: data.title },
+        ]}
+      >
+        <div class="crumbs-side">
+          {prev && <a href={articleUrl(prev)}>« 前の記事</a>}
+          {next && <a href={articleUrl(next)}>次の記事 »</a>}
+        </div>
+      </Crumbs>
+    </div>
+    <main id="main" class="content-main">
+      <article class="post">
+        <div class="tcat tcat--strong post-head">
+          <span class="post-head-title">
+            <Icon name="doc" size={14} />
+            記事 · {category.name}
+          </span>
+          <span class="post-head-links">
+            <button type="button" data-print hidden>
+              印刷用表示
+            </button>
+            {changelog.length > 0 && <a href="#rev">改訂履歴</a>}
+            {sourcePath && <a href={`${site.repo}/blob/main/${sourcePath}`}>Markdownソース</a>}
+          </span>
+        </div>
+        <div class="thead post-dates">
+          <span>
+            <b>投稿</b> <time datetime={data.publishedAt.toISOString()}>{formatDateTime(data.publishedAt)}</time> ·{" "}
+            <b>更新</b> <time datetime={data.updatedAt.toISOString()}>{formatDateTime(data.updatedAt)}</time>
+          </span>
+          <span>
+            <a href="#rev">
+              <b>r{data.revision}</b>
+            </a>{" "}
+            · {site.author}
+          </span>
+        </div>
+        <div
+          class="art"
+          data-pagefind-body
+          data-updated-label={formatDate(data.updatedAt)}
+          data-updated-iso={data.updatedAt.toISOString()}
+          data-pagefind-meta="updated[data-updated-label]"
+          data-pagefind-sort="updated[data-updated-iso]"
+        >
+          <div class="art-column">
+            <div class="art-kicker" data-pagefind-ignore>
+              <b class={kind.className}>[{kind.label}]</b>
+              {data.series && (
+                <span>
+                  {data.series.name} — 第{data.series.part}回
+                </span>
+              )}
+            </div>
+            <h1 class="art-title" data-pagefind-meta="title">
+              {data.title}
+            </h1>
+            <dl class="art-facts" data-pagefind-ignore>
+              <div>
+                <dt>カテゴリ</dt>
+                <dd>
+                  <a href={categoryUrl(data.category)} data-pagefind-filter="category">
+                    {category.name}
+                  </a>
+                </dd>
+              </div>
+              <div>
+                <dt>対象</dt>
+                <dd>{data.target ?? "—"}</dd>
+              </div>
+              <div>
+                <dt>読了目安</dt>
+                <dd>
+                  約{minutes}分 · {charCount(article.body).toLocaleString("ja-JP")}字
+                </dd>
+              </div>
+              <div>
+                <dt>改訂</dt>
+                <dd>
+                  <a href="#rev">
+                    r{data.revision}（{data.revision}回）
+                  </a>
+                </dd>
+              </div>
+            </dl>
+            <div class="art-tags" data-pagefind-ignore>
+              {data.tags.map((t) => (
+                <a href={tagUrl(t)} class="tag" data-pagefind-filter="tag">
+                  {t}
+                </a>
+              ))}
+            </div>
+            {tocHeadings.length > 0 && (
+              <details class="toc toc--inline" data-pagefind-ignore open>
+                <summary class="tcat">
+                  <span>目次（{headings.filter((h) => h.depth === 2).length}）</span>
+                  <span>
+                    <Icon name="minus" size={15} class="toggle-open" />
+                    <Icon name="plus" size={15} class="toggle-closed" />
+                  </span>
+                </summary>
+                <ArticleToc headings={tocHeadings} />
+              </details>
+            )}
+            {data.keyPoints && (
+              <div class="key-points">
+                <div class="thead" data-pagefind-ignore>
+                  この記事の要点
+                </div>
+                <ul>
+                  {data.keyPoints.map((p) => (
+                    <li>{p}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <div class="art-body">
+              <Content />
+            </div>
+          </div>
+        </div>
+        <div id="rev" class="post-foot">
+          {lastChange && (
+            <div class="post-foot-last">
+              最終改訂: {site.author}, {formatDateTime(lastChange.date)} — 理由: {lastChange.note}
+            </div>
+          )}
+          {changelog.length > 0 && (
+            <div class="rev-table">
+              <div class="thead">改訂履歴</div>
+              <div class="rev-rows">
+                {changelog.map((c) => (
+                  <>
+                    <span class="rev-id">r{c.revision}</span>
+                    <span>{formatDate(c.date)}</span>
+                    <span>{c.note}</span>
+                  </>
+                ))}
+              </div>
+            </div>
+          )}
+          <div class="post-foot-links">
+            <span>
+              誤りの指摘・補足は <a href={`${site.repo}/issues`}>GitHub Issues</a> へ。修正は改訂履歴に残します。
+              {sourcePath && <a href={`${site.repo}/commits/main/${sourcePath}`}>Gitの変更履歴</a>}
+            </span>
+            <a href="#top">▲ ページの先頭へ</a>
+          </div>
+        </div>
+      </article>
+
+      {(prev || next) && (
+        <nav class="prev-next" aria-label="前後の記事">
+          {prev ? (
+            <a href={articleUrl(prev)}>
+              <small>« 前の記事</small>
+              <b>{prev.data.title}</b>
+            </a>
+          ) : (
+            <span class="prev-next-none" />
+          )}
+          {next ? (
+            <a href={articleUrl(next)} class="prev-next-next">
+              <small>次の記事 »</small>
+              <b>{next.data.title}</b>
+            </a>
+          ) : (
+            <span class="prev-next-none" />
+          )}
+        </nav>
+      )}
+
+      {related.length > 0 && (
+        <section class="panel related-panel" aria-labelledby="rel-h">
+          <h2 id="rel-h" class="tcat tcat--strong panel-title">
+            関連する記事
+          </h2>
+          <div class="table-x">
+            <div class="related-table">
+              <div class="thead related-grid" style="border-top: 1px solid var(--c-panel-rule)">
+                <span>記事</span>
+                <span>カテゴリ</span>
+                <span class="thead-center">改訂</span>
+                <span class="thead-right">更新</span>
+              </div>
+              {related.map((r) => (
+                <div class="trow related-grid">
+                  <span class="cell cell-main">
+                    <b class={kinds[r.data.kind].className}>[{kinds[r.data.kind].label}]</b>{" "}
+                    <a class="related-title" href={articleUrl(r)}>
+                      {r.data.title}
+                    </a>
+                  </span>
+                  <span class="cell">
+                    <a href={categoryUrl(r.data.category)}>{categoryBySlug(r.data.category).name}</a>
+                  </span>
+                  <span class="cell cell-rev thead-center">r{r.data.revision}</span>
+                  <span class="cell cell-date-plain related-date">{formatDate(r.data.updatedAt)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+    </main>
+
+    <aside class="content-side article-side" aria-label="サイドバー">
+      {tocHeadings.length > 0 && (
+        <nav class="toc panel panel--light" aria-labelledby="toc-h">
+          <h2 id="toc-h" class="tcat panel-title">
+            目次
+          </h2>
+          <div class="panel-body">
+            <ArticleToc headings={tocHeadings} />
+          </div>
+        </nav>
+      )}
+      <SidePanel id="ai-h" title="この記事について">
+        <dl class="kv">
+          <dt>投稿</dt>
+          <dd>{formatDateTime(data.publishedAt)}</dd>
+          <dt>更新</dt>
+          <dd>{formatDateTime(data.updatedAt)}</dd>
+          <dt>改訂</dt>
+          <dd>
+            <a href="#rev">r{data.revision}（履歴を見る）</a>
+          </dd>
+          {data.series && (
+            <>
+              <dt>連載</dt>
+              <dd>
+                {data.series.name} {data.series.part}/{series.length}
+              </dd>
+            </>
+          )}
+          {data.verifiedOn && (
+            <>
+              <dt>検証</dt>
+              <dd>{data.verifiedOn}</dd>
+            </>
+          )}
+        </dl>
+      </SidePanel>
+      {series.length > 1 && (
+        <SidePanel id="ser-h" title={`連載: ${data.series?.name ?? ""}`}>
+          <ol class="side-list">
+            {series.map((part) => (
+              <li>
+                <b>第{part.data.series?.part}回</b>{" "}
+                {part.id === article.id ? (
+                  <span class="series-current">{part.data.title}（この記事）</span>
+                ) : (
+                  <a href={articleUrl(part)}>{part.data.title}</a>
+                )}
+              </li>
+            ))}
+          </ol>
+        </SidePanel>
+      )}
+      <SidePanel id="sbt-h" title="カテゴリ">
+        <ul class="side-list side-list--counted">
+          {categories.map((c) => (
+            <li>
+              <a href={categoryUrl(c.slug)} style={c.slug === data.category ? "font-weight: bold" : undefined}>
+                {c.name}
+              </a>
+              <span class="count">{categoryStats(all, c.slug).articles.length}</span>
+            </li>
+          ))}
+        </ul>
+      </SidePanel>
+    </aside>
+  </div>
+  <script>
+    import "../../scripts/article.ts";
+  </script>
+</BaseLayout>

@@ -1,0 +1,34 @@
+---
+import type { GetStaticPaths } from "astro";
+import ThreadTable from "../../../components/ThreadTable.astro";
+import ListLayout from "../../../layouts/ListLayout.astro";
+import { archiveMonths, pad } from "../../../lib/articles.ts";
+import { getArticles, type Article } from "../../../lib/collection.ts";
+
+export const getStaticPaths = (async () => {
+  const months = archiveMonths(await getArticles());
+  return months.map((m) => ({
+    params: { year: String(m.year), month: pad(m.month) },
+    props: { year: m.year, month: m.month, articles: m.articles },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  year: number;
+  month: number;
+  articles: Article[];
+}
+
+const { year, month, articles } = Astro.props;
+const label = `${year}年${month}月`;
+---
+
+<ListLayout title={label} nav="archive" trail={[{ label: "アーカイブ", href: "/archive/" }, { label }]} heading={label}>
+  <section class="panel" aria-labelledby="month-h">
+    <div class="tcat tcat--strong panel-head">
+      <h2 id="month-h">{label}に公開した記事</h2>
+      <span class="panel-note">{articles.length} 記事</span>
+    </div>
+    <ThreadTable articles={articles} />
+  </section>
+</ListLayout>

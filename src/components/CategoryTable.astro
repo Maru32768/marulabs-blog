@@ -1,0 +1,105 @@
+---
+import { categoryGroups } from "../data/taxonomy.ts";
+import { articleUrl, categoryStats, categoryUrl, siteStats, tagUrl } from "../lib/articles.ts";
+import type { Article } from "../lib/collection.ts";
+import { formatDateTime, formatShort } from "../lib/format.ts";
+import Icon from "./Icon.astro";
+
+interface Props {
+  articles: Article[];
+}
+
+const { articles } = Astro.props;
+const stats = siteStats(articles);
+---
+
+<section class="panel" aria-labelledby="fi-h">
+  <div class="tcat tcat--strong panel-head">
+    <h2 id="fi-h">カテゴリ一覧</h2>
+    <span class="panel-note">
+      <span class="only-desktop">{stats.categories} カテゴリ · </span>
+      {stats.articles} 記事<span class="only-desktop"> · {stats.revisions} 改訂</span>
+    </span>
+  </div>
+  <div class="table-x">
+    <div class="cat-table">
+      <div class="thead cat-grid">
+        <span></span>
+        <span>カテゴリ</span>
+        <span class="thead-right">最新の記事</span>
+        <span class="thead-center">記事</span>
+        <span class="thead-center">改訂</span>
+      </div>
+      {categoryGroups.map((group) => (
+        <details class="group" id={group.id} open>
+          <summary class="tcat">
+            <span>
+              {group.title} <span class="group-sub">— {group.sub}</span>
+            </span>
+            <span class="group-toggle">
+              <Icon name="minus" size={13} class="toggle-open" />
+              <Icon name="plus" size={13} class="toggle-closed" />
+            </span>
+          </summary>
+          {group.categories.map((category) => {
+            const s = categoryStats(articles, category.slug);
+            return (
+              <div class="trow cat-grid" data-updated={s.latest?.data.updatedAt.toISOString()}>
+                <div class="cell cell-icon">
+                  <Icon name="folderOld" size={24} label="新着なし" class="state-old" />
+                  <Icon name="folderNew" size={24} label="新着あり" class="state-new" />
+                </div>
+                <div class="cell cell-main hl">
+                  <div>
+                    <a class="cat-name" href={categoryUrl(category.slug)}>
+                      {category.name}
+                    </a>
+                    <span class="new">new</span>
+                  </div>
+                  <div class="cat-desc">{category.desc}</div>
+                  {s.topTags.length > 0 && (
+                    <div class="cat-subs">
+                      <b>タグ:</b>{" "}
+                      {s.topTags.map((t) => (
+                        <a href={tagUrl(t)}>{t}</a>
+                      ))}
+                    </div>
+                  )}
+                  {s.latest && (
+                    <div class="cat-last-mobile">
+                      最新: {s.latest.data.title} · {formatShort(s.latest.data.updatedAt)}
+                    </div>
+                  )}
+                </div>
+                <div class="cell cell-last">
+                  {s.latest ? (
+                    <>
+                      <div class="cell-last-title">
+                        <a href={articleUrl(s.latest)} title={s.latest.data.title}>
+                          {s.latest.data.title}
+                        </a>
+                      </div>
+                      <div>{formatDateTime(s.latest.data.updatedAt)}</div>
+                      <div class="cell-last-note">
+                        {s.latest.data.revision > 1 ? `改訂 r${s.latest.data.revision}` : "新規"}
+                        <Icon name="lastPost" size={10} />
+                      </div>
+                    </>
+                  ) : (
+                    <div>—</div>
+                  )}
+                </div>
+                <div class="cell cell-num cell-num--light">{s.articles.length}</div>
+                <div class="cell cell-num">{s.revisions}</div>
+                <span class="cat-count-mobile">
+                  {s.articles.length}
+                  <small>記事</small>
+                </span>
+              </div>
+            );
+          })}
+        </details>
+      ))}
+    </div>
+  </div>
+</section>

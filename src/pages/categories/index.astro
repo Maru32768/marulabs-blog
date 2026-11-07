@@ -1,0 +1,11 @@
+---
+import CategoryTable from "../../components/CategoryTable.astro";
+import ListLayout from "../../layouts/ListLayout.astro";
+import { getArticles } from "../../lib/collection.ts";
+
+const articles = await getArticles();
+---
+
+<ListLayout title="カテゴリ" nav="categories" trail={[{ label: "カテゴリ" }]} heading="カテゴリ">
+  <CategoryTable articles={articles} />
+</ListLayout>

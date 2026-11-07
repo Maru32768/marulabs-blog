@@ -1,0 +1,21 @@
+---
+import { nav, type NavKey } from "../data/site.ts";
+
+interface Props {
+  current: NavKey;
+}
+
+const { current } = Astro.props;
+---
+
+<nav class="nav" aria-label="グローバルナビゲーション">
+  {nav.map((item) => (
+    <a href={item.href} aria-current={item.key === current ? "page" : undefined}>
+      {item.label}
+    </a>
+  ))}
+  <span class="nav-spacer"></span>
+  <a href="/about/" class="nav-end" aria-current={current === "about" ? "page" : undefined}>
+    About
+  </a>
+</nav>

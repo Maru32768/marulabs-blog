@@ -1,0 +1,26 @@
+---
+import ListLayout from "../../layouts/ListLayout.astro";
+import { tagCounts, tagUrl } from "../../lib/articles.ts";
+import { getArticles } from "../../lib/collection.ts";
+
+const tags = tagCounts(await getArticles());
+---
+
+<ListLayout title="タグ" nav="tags" trail={[{ label: "タグ" }]} heading="タグ">
+  <section class="panel panel--light" aria-labelledby="tags-h">
+    <h2 id="tags-h" class="tcat tcat--strong panel-title">
+      すべてのタグ（{tags.length}）
+    </h2>
+    {tags.length === 0 ? (
+      <div class="empty">まだタグはありません。</div>
+    ) : (
+      <div class="panel-body tag-cloud">
+        {tags.map((t) => (
+          <a href={tagUrl(t.tag)} class="tag">
+            {t.tag} <span class="tag-count">{t.count}</span>
+          </a>
+        ))}
+      </div>
+    )}
+  </section>
+</ListLayout>

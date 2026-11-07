@@ -1,0 +1,32 @@
+---
+import ListLayout from "../layouts/ListLayout.astro";
+import { articleUrl, changelogEntries } from "../lib/articles.ts";
+import { getArticles } from "../lib/collection.ts";
+import { formatDate } from "../lib/format.ts";
+
+const entries = changelogEntries(await getArticles());
+---
+
+<ListLayout title="更新履歴" nav="changelog" trail={[{ label: "更新履歴" }]} heading="更新履歴">
+  <section class="panel panel--light" aria-labelledby="log-h">
+    <h2 id="log-h" class="tcat tcat--strong panel-title">
+      すべての更新（{entries.length}）
+    </h2>
+    {entries.length === 0 ? (
+      <div class="empty">まだ更新はありません。</div>
+    ) : (
+      <div class="log-table">
+        {entries.map((e) => (
+          <>
+            <span class="mono-date">{formatDate(e.date)}</span>
+            <span>{e.type === "new" ? <b class="log-new">新規</b> : <b class="log-rev">改訂 r{e.revision}</b>}</span>
+            <span>
+              <a href={articleUrl(e.article)}>{e.article.data.title}</a>
+              {e.note && <span class="log-note">{e.note}</span>}
+            </span>
+          </>
+        ))}
+      </div>
+    )}
+  </section>
+</ListLayout>

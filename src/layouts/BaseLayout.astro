@@ -1,0 +1,81 @@
+---
+import "../styles/tokens.css";
+import "../styles/base.css";
+import "../styles/components.css";
+import Credits from "../components/Credits.astro";
+import Footer from "../components/Footer.astro";
+import GlobalNav from "../components/GlobalNav.astro";
+import Header from "../components/Header.astro";
+import { site, type NavKey } from "../data/site.ts";
+import { getArticles } from "../lib/collection.ts";
+
+interface Props {
+  /** Page title without the site name. Omit on the home page. */
+  title?: string;
+  description?: string;
+  nav: NavKey;
+  noindex?: boolean;
+  /** Pages that should not add to the page view counter, such as the 404 page. */
+  noCount?: boolean;
+  ogType?: "website" | "article";
+  currentCategory?: string;
+}
+
+const {
+  title,
+  description = `${site.description}。分散システム・データベース・OS・ネットワークの調査記録。`,
+  nav,
+  noindex = false,
+  noCount = false,
+  ogType = "website",
+  currentCategory,
+} = Astro.props;
+
+const articles = await getArticles();
+const fullTitle = title ? `${title} — ${site.title}` : `${site.title} — ${site.description}`;
+const canonical = new URL(Astro.url.pathname, site.url).href;
+const ogImage = new URL("/og.png", site.url).href;
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title={`${site.title} RSS`} href="/rss.xml" />
+    <link rel="alternate" type="application/atom+xml" title={`${site.title} Atom`} href="/atom.xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta property="og:site_name" content={site.title} />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title ?? site.title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <slot name="head" />
+  </head>
+  <body id="top" data-no-count={noCount ? "" : undefined}>
+    <a class="skip-link" href="#main">
+      本文へ移動
+    </a>
+    <div class="page">
+      <div class="shell">
+        <Header lastUpdated={articles[0]?.data.updatedAt} />
+        <GlobalNav current={nav} />
+        <slot name="strip" />
+        <slot />
+        <Footer currentCategory={currentCategory} />
+      </div>
+      <Credits />
+    </div>
+    <script>
+      import "../scripts/site.ts";
+    </script>
+  </body>
+</html>

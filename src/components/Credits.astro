@@ -1,0 +1,40 @@
+---
+import { site } from "../data/site.ts";
+
+const buildYear = new Date().getFullYear();
+const years = buildYear > site.launched.year ? `${site.launched.year}–${buildYear}` : `${site.launched.year}`;
+---
+
+<div class="ft">
+  <div>
+    すべての時刻は JST (GMT +9) です。
+    <span data-clock-box hidden>
+      現在の時刻は{" "}
+      <b class="ft-clock" data-clock>
+        --:--
+      </b>
+      。
+    </span>
+  </div>
+  <div class="badges" aria-hidden="true">
+    <span class="badge badge--rss">
+      <span>rss</span>
+      <span>2.0</span>
+    </span>
+    <span class="badge badge--html">
+      <span>html</span>
+      <span>static</span>
+    </span>
+    <span class="badge badge--no">
+      <span>no</span>
+      <span>trackers</span>
+    </span>
+    <span class="badge badge--any">
+      <span>any</span>
+      <span>browser</span>
+    </span>
+  </div>
+  <div>
+    Copyright © {years} {site.title}. {site.license}.
+  </div>
+</div>

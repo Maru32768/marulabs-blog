@@ -1,0 +1,52 @@
+---
+import { site } from "../data/site.ts";
+import ListLayout from "../layouts/ListLayout.astro";
+---
+
+<ListLayout
+  title="このサイトについて"
+  description="Maru's System Lab の運営方針、記事の改訂ルール、連絡先、アクセスカウンターの仕組み。"
+  nav="about"
+  trail={[{ label: "このサイトについて" }]}
+  heading="このサイトについて"
+>
+  <section class="panel panel--light" aria-labelledby="about-h">
+    <h2 id="about-h" class="tcat tcat--strong panel-title">
+      Maru's System Lab
+    </h2>
+    <div class="prose-box">
+      <p>{site.welcome}</p>
+      <p>
+        データベース、分散システム、OS、ネットワークの調査と検証の結果、設計上の判断とトレードオフ、個人開発で遭遇した問題と解決方法を記録しています。
+      </p>
+
+      <h3>記事の改訂ルール</h3>
+      <ul>
+        <li>公開後に内容を変えたときは、記事の改訂番号（r1, r2, …）を上げて、理由を改訂履歴に残します。</li>
+        <li>差分はすべて Git に残ります。各記事の「Markdownソース」「Gitの変更履歴」からたどれます。</li>
+        <li>調査や下書きに Claude を使う場合がありますが、公開するかどうかは管理人が記事ごとに判断しています。</li>
+      </ul>
+
+      <h3 id="contact">連絡先</h3>
+      <p>
+        誤りの指摘や補足は <a href={`${site.repo}/issues`}>GitHub Issues</a> へお願いします。
+      </p>
+
+      <h3>アクセスカウンターとプライバシー</h3>
+      <ul>
+        <li>カウンターはサイト全体の累計ページビューです。訪問者数ではありません。</li>
+        <li>
+          サイトのサーバー側で保存しているのは累計の数値だけです。IPアドレスや個人を識別する情報は保存せず、Cookieやフィンガープリントも使いません。
+        </li>
+        <li>
+          同じタブでの再読み込みは、ブラウザの sessionStorage
+          を使って30分間は数えません。この情報はタブを閉じると消え、サーバーには送られません。
+        </li>
+        <li>解析タグや広告タグは入れていません。サイトは Cloudflare 上で配信しています。</li>
+      </ul>
+
+      <h3>ライセンス</h3>
+      <p>{site.license}。</p>
+    </div>
+  </section>
+</ListLayout>

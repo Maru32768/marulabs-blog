@@ -1,0 +1,31 @@
+---
+import ListLayout from "../../layouts/ListLayout.astro";
+import { archiveMonths, archiveUrl } from "../../lib/articles.ts";
+import { getArticles } from "../../lib/collection.ts";
+
+const months = archiveMonths(await getArticles());
+---
+
+<ListLayout title="アーカイブ" nav="archive" trail={[{ label: "アーカイブ" }]} heading="アーカイブ">
+  <section class="panel panel--light" aria-labelledby="arc-h">
+    <h2 id="arc-h" class="tcat tcat--strong panel-title">
+      月別アーカイブ
+    </h2>
+    {months.length === 0 ? (
+      <div class="empty">まだ公開記事はありません。</div>
+    ) : (
+      <div class="panel-body">
+        <ul class="side-list side-list--counted">
+          {months.map((m) => (
+            <li>
+              <a href={archiveUrl(m.year, m.month)}>
+                {m.year}年{m.month}月
+              </a>
+              <span class="count">{m.articles.length}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+  </section>
+</ListLayout>

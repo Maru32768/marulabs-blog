@@ -1,0 +1,61 @@
+---
+import Crumbs from "../components/Crumbs.astro";
+import SiteSidebar from "../components/SiteSidebar.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getArticles } from "../lib/collection.ts";
+
+const articles = await getArticles();
+---
+
+<BaseLayout title="サイト内検索" description="公開記事の全文検索。" nav="search" noindex>
+  <div class="content">
+    <main id="main" class="content-main">
+      <Crumbs trail={[{ label: "サイト内検索" }]} heading="サイト内検索" />
+      <section class="panel" aria-labelledby="search-h">
+        <h2 id="search-h" class="tcat tcat--strong panel-title">
+          検索条件
+        </h2>
+        <form id="search-form" class="search-form" action="/search/" method="get" role="search">
+          <label for="q">キーワード</label>
+          <input id="q" name="q" type="search" autocomplete="off" placeholder="vacuum, トランザクション …" />
+          <label for="category">カテゴリ</label>
+          <select id="category" name="category">
+            <option value="">すべて</option>
+          </select>
+          <label for="tag">タグ</label>
+          <select id="tag" name="tag">
+            <option value="">すべて</option>
+          </select>
+          <label for="sort">並び順</label>
+          <select id="sort" name="sort">
+            <option value="">関連度</option>
+            <option value="updated">更新日</option>
+          </select>
+          <div class="search-actions">
+            <button type="submit" class="btn">
+              検索
+            </button>
+          </div>
+        </form>
+        <div id="search-status" class="search-status" role="status">
+          キーワードを入力してください。
+          <noscript>
+            検索には JavaScript が必要です。<a href="/articles/">記事一覧</a> からもたどれます。
+          </noscript>
+        </div>
+        <div id="search-results" data-has-articles={articles.length > 0 ? "true" : "false"}></div>
+        <div class="search-more">
+          <button id="search-more" type="button" class="btn" hidden>
+            さらに表示
+          </button>
+        </div>
+      </section>
+    </main>
+    <aside class="content-side" aria-label="サイドバー">
+      <SiteSidebar articles={articles} />
+    </aside>
+  </div>
+  <script>
+    import "../scripts/search.ts";
+  </script>
+</BaseLayout>

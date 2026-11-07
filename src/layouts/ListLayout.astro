@@ -1,0 +1,32 @@
+---
+import Crumbs from "../components/Crumbs.astro";
+import SiteSidebar from "../components/SiteSidebar.astro";
+import type { NavKey } from "../data/site.ts";
+import { getArticles } from "../lib/collection.ts";
+import BaseLayout from "./BaseLayout.astro";
+
+interface Props {
+  title: string;
+  description?: string;
+  nav: NavKey;
+  trail: { label: string; href?: string }[];
+  heading: string;
+  currentCategory?: string;
+}
+
+const { title, description, nav, trail, heading, currentCategory } = Astro.props;
+const articles = await getArticles();
+const base = { title, nav, ...(description ? { description } : {}), ...(currentCategory ? { currentCategory } : {}) };
+---
+
+<BaseLayout {...base}>
+  <div class="content">
+    <main id="main" class="content-main">
+      <Crumbs trail={trail} heading={heading} />
+      <slot />
+    </main>
+    <aside class="content-side" aria-label="サイドバー">
+      <SiteSidebar articles={articles} />
+    </aside>
+  </div>
+</BaseLayout>
