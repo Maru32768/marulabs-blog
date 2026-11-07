@@ -22,7 +22,7 @@
       "binding": "DB",
       "database_name": "marulabs-blog",
       // Not a secret: output `d1_database_id` from Terraform.
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "3cabc7f8-9f75-483b-950a-b8fe0ee3ff4e",
       "migrations_dir": "migrations",
     },
   ],
