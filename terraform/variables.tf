@@ -1,5 +1,5 @@
 variable "account_id" {
-  description = "Cloudflare account ID. Set through TF_VAR_account_id."
+  description = "Cloudflare account ID. Comes from TF_VAR_account_id, see .mise.ops.toml."
   type        = string
 }
 

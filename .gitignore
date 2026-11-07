@@ -6,9 +6,15 @@ dist-fixtures/
 .dev.vars*
 .env
 .env.*
+*.env
+.mise.local.toml
+.mise.*.local.toml
+mise.local.toml
+mise.*.local.toml
 test-results/
 playwright-report/
 coverage/
+.idea
 
 # Terraform state stays out of this public repository, see docs/DECISIONS.md.
 terraform/.terraform/
@@ -17,4 +23,3 @@ terraform/.terraform/
 *.tfvars
 *.tfplan
 crash.log
-terraform/backend.hcl

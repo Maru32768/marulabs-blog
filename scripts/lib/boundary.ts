@@ -31,7 +31,8 @@ export const FORBIDDEN_TRACKED_PATHS: { pattern: RegExp; reason: string }[] = [
   { pattern: /^src\/content\/(?!articles\/)/, reason: "only src/content/articles is a content source" },
   { pattern: /\.tfstate(\.|$)/, reason: "Terraform state must not be committed" },
   { pattern: /\.tfvars$/, reason: "Terraform variables must not be committed" },
-  { pattern: /(^|\/)\.env(\.|$)|(^|\/)\.dev\.vars/, reason: "environment files must not be committed" },
+  { pattern: /(^|\/)\.env(\.|$)|(^|\/)\.dev\.vars|\.env$/, reason: "environment files must not be committed" },
+  { pattern: /(^|\/)\.?mise\.(?:[^/]+\.)?local\.toml$/, reason: "local mise config may hold secrets" },
 ];
 
 /** Paths where the private marker is a real leak. Tests and docs may name it. */

@@ -1,0 +1,9 @@
+# How far tools may move on their own. mise.lock pins the exact versions and checksums.
+[tools]
+node = "26"
+terraform = "1"
+
+# Not secret. Credentials are not loaded here, see .mise.ops.toml.
+[env]
+ASTRO_TELEMETRY_DISABLED = "1"
+WRANGLER_SEND_METRICS = "false"

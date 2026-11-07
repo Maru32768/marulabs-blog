@@ -62,6 +62,17 @@ tests/                 unit, worker, e2e, fixtures
 - `draft` や `status` のような「未公開」の概念をこのリポジトリに持ち込まない。ここにある記事はすべて公開済み
 - 改訂するときは `revision` を上げ、`updatedAt` と `changelog` を更新する。詳細は README
 
+## ツールと環境変数
+
+ツールと環境変数は mise で管理する。
+
+- バージョンは `.mise.toml`（どこまで自動で上げてよいか）と `mise.lock`（正確なバージョンとチェックサム）で決まる。バージョンを別の場所に書かない。`mise.lock` はコミットする
+- 秘密情報は `~/.config/marulabs/cloudflare.env` に置く。リポジトリの中には置かない
+- **`.env` を作らない。** Astro が値を静的 HTML に出力でき、Wrangler もトークンを読む
+- Cloudflare の認証情報が必要なコマンドは `mise -E ops exec -- <コマンド>` で実行する（`.mise.ops.toml`）。インフラの操作のときだけ付ける。`npm ci`、ビルド、テストに付けない
+- **秘密情報を表示しない。** `mise -E ops env` や `env`、`printenv` を実行しない。`cloudflare.env` の中身を読まない。確認が必要なら変数名だけを見る
+- CI で `ops` プロファイルを使わない
+
 ## テスト
 
 コードを変えたら次を通してください。
@@ -76,6 +87,9 @@ npm run check
 
 ```bash
 npm run build:fixtures
+```
+
+```bash
 npm run test:e2e:docker
 ```
 
@@ -91,5 +105,6 @@ npm run test:e2e:docker
 
 - `terraform/` は Worker 本体、D1、カスタムドメインを管理する。既存の Zone は参照するだけ
 - **`apply` の前に必ず `plan` を確認する。** 既存リソースの破壊や置き換えが含まれる場合は、明示的な承認なしに実行しない
-- `prevent_destroy` を外さない。state、`backend.hcl`、`*.tfvars` をコミットしない
+- コマンドは `mise -E ops exec -- terraform -chdir=terraform <サブコマンド>` で実行する
+- `prevent_destroy` を外さない。state と `*.tfvars` をコミットしない
 - plan の出力を Issue や PR に貼らない

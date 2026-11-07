@@ -9,9 +9,9 @@ terraform {
   }
 
   # State lives in a private Cloudflare R2 bucket, never in this repository.
-  # `bucket` and `endpoints` come from backend.hcl (not committed, see backend.hcl.example).
-  # Credentials come from AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY (R2 token).
+  # The endpoint and credentials come from the environment, see .mise.ops.toml.
   backend "s3" {
+    bucket                      = "marulabs-tfstate"
     key                         = "marulabs-blog/terraform.tfstate"
     region                      = "auto"
     use_lockfile                = true
@@ -24,5 +24,5 @@ terraform {
   }
 }
 
-# The API token comes from the CLOUDFLARE_API_TOKEN environment variable.
+# The API token comes from CLOUDFLARE_API_TOKEN, see .mise.ops.toml.
 provider "cloudflare" {}

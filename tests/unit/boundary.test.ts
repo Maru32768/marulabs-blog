@@ -205,6 +205,10 @@ describe("source checks", () => {
       ".env",
       ".env.production",
       ".dev.vars",
+      "cloudflare.env",
+      ".mise.local.toml",
+      "mise.local.toml",
+      ".mise.ops.local.toml",
     ]) {
       expect(checkTrackedPath(path), path).not.toEqual([]);
     }
@@ -216,6 +220,10 @@ describe("source checks", () => {
       "terraform/main.tf",
       "tests/fixtures/articles/a.md",
       "README.md",
+      ".mise.toml",
+      ".mise.ops.toml",
+      "mise.lock",
+      "ops.env.example",
     ]) {
       expect(checkTrackedPath(path), path).toEqual([]);
     }

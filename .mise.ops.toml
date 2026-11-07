@@ -1,0 +1,9 @@
+# Cloudflare credentials, loaded only for commands run as: mise -E ops exec -- <command>
+#
+# The file is deliberately outside this public repository and is not named .env:
+# Astro exposes .env values to pages at build time, and Wrangler reads its token from it.
+# npm ci, builds and tests run without this profile, so they never see the credentials.
+[env]
+_.file = { path = "~/.config/marulabs/cloudflare.env", redact = true }
+TF_VAR_account_id = "{{ env.CLOUDFLARE_ACCOUNT_ID }}"
+AWS_ENDPOINT_URL_S3 = "https://{{ env.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com"

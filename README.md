@@ -42,7 +42,15 @@ marulabs-knowledge (Private)                marulabs-blog (Public, このリポ�
 
 ## ローカル開発
 
-Node.js 24 以上（`.nvmrc` は 26）。
+ツールは [mise](https://mise.jdx.dev/) で管理しています。`.mise.toml` に「どこまで自動で上げてよいか」、`mise.lock` に正確なバージョンとチェックサムを書いています。
+
+```bash
+mise trust && mise trust .mise.ops.toml
+```
+
+```bash
+mise install
+```
 
 ```bash
 npm ci
@@ -75,6 +83,45 @@ npm run build:fixtures
 ```bash
 npx wrangler dev --assets dist-fixtures --var COUNT_HOST:localhost
 ```
+
+### ツールを更新する
+
+`mise.lock` を最新にして、動作を確かめてからコミットします。メジャーバージョンをまたぐときは、先に `.mise.toml` を書き換えます。
+
+```bash
+mise lock --bump && mise install && npm run check
+```
+
+## 環境変数
+
+環境変数も mise で管理します。**秘密情報は普段は読み込みません。** `ops` プロファイルを指定したコマンドにだけ渡します。
+
+```bash
+mise -E ops exec -- terraform -chdir=terraform plan
+```
+
+| 変数                                          | 内容                                | 定義する場所                        | 読み込まれるとき |
+| --------------------------------------------- | ----------------------------------- | ----------------------------------- | ---------------- |
+| `ASTRO_TELEMETRY_DISABLED`                    | Astro のテレメトリを無効にする      | `.mise.toml`                        | 常に             |
+| `WRANGLER_SEND_METRICS`                       | Wrangler のテレメトリを無効にする   | `.mise.toml`                        | 常に             |
+| `CLOUDFLARE_ACCOUNT_ID`                       | Cloudflare のアカウント ID          | `~/.config/marulabs/cloudflare.env` | `ops` のみ       |
+| `CLOUDFLARE_API_TOKEN`                        | Terraform 用トークン（秘密）        | `~/.config/marulabs/cloudflare.env` | `ops` のみ       |
+| `CLOUDFLARE_DEPLOY_TOKEN`                     | GitHub に登録するデプロイ用（秘密） | `~/.config/marulabs/cloudflare.env` | `ops` のみ       |
+| `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | R2 の S3 認証情報（秘密）           | `~/.config/marulabs/cloudflare.env` | `ops` のみ       |
+| `TF_VAR_account_id` / `AWS_ENDPOINT_URL_S3`   | アカウント ID から生成する          | `.mise.ops.toml`                    | `ops` のみ       |
+
+ファイルは `ops.env.example` をコピーして作ります。
+
+```bash
+mkdir -p ~/.config/marulabs && install -m 600 ops.env.example ~/.config/marulabs/cloudflare.env
+```
+
+注意点:
+
+- **`.env` を使わないでください。** Astro は `.env` の値をビルド時にページから読めるようにし、静的 HTML に出力できてしまいます。Wrangler もそこからトークンを読みます。どちらも実際に確認しました。
+- `npm ci`、ビルド、テストに `ops` を付けないでください。依存パッケージのスクリプトにトークンを渡さないためです。
+- `mise -E ops env` は秘密情報をそのまま表示します。ログや Issue に貼らないでください。`redact` が効くのは `mise run` の出力だけで、`mise exec` の出力は隠されません。
+- ファイルがないと `Field CLOUDFLARE_ACCOUNT_ID is not defined` で止まります。上のコマンドで作ってください。
 
 ## 記事を公開する
 
@@ -201,7 +248,7 @@ npm run test:e2e:update
 | `preview`   | 同じリポジトリの PR | 検査済みの `dist` を Version URL へアップロード                   |
 | `deploy`    | `main`              | D1 マイグレーション、検査済みの `dist` のデプロイ、スモークテスト |
 
-Private リポジトリへのアクセス権限はどのジョブにもありません。Actions は SHA で固定しています。
+Private リポジトリへのアクセス権限はどのジョブにもありません。Actions は SHA で固定しています。ツールは `jdx/mise-action` が `.mise.toml` と `mise.lock` から入れます。`MISE_LOCKED=1` により、ロックにないバージョンやチェックサムの異なるものはエラーになります。CI では `ops` プロファイルを使いません。
 
 ### 必要な権限と Secrets
 
@@ -214,70 +261,68 @@ GitHub の Repository secrets:
 
 Cloudflare の API トークンは用途ごとに分けます。
 
-| トークン     | 置き場所           | 権限                                                                                                                                                         |
-| ------------ | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| デプロイ用   | GitHub Secrets     | Account: Workers Scripts Edit, D1 Edit                                                                                                                       |
-| Terraform 用 | 管理人のマシンのみ | Account: Workers Scripts Edit, D1 Edit, Workers R2 Storage Edit, Account Settings Read / Zone（marulabs.dev のみ）: Zone Read, DNS Edit, Workers Routes Edit |
+| トークン     | 置き場所                               | 権限                                                                                                                                                         |
+| ------------ | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| デプロイ用   | GitHub Secrets                         | Account: Workers Scripts Edit, D1 Edit                                                                                                                       |
+| Terraform 用 | 管理人のマシンのみ（`cloudflare.env`） | Account: Workers Scripts Edit, D1 Edit, Workers R2 Storage Edit, Account Settings Read / Zone（marulabs.dev のみ）: Zone Read, DNS Edit, Workers Routes Edit |
 
 ## Cloudflare への初回デプロイ
 
 一度だけ必要な手順です。以降は `main` へのマージだけでデプロイされます。
 
-1. Terraform 用の環境変数を読み込みます。
-
-   ```bash
-   source ~/.config/marulabs/cloudflare.env
-   ```
-
-   ```
-   export CLOUDFLARE_API_TOKEN=...      # Terraform 用トークン
-   export CLOUDFLARE_ACCOUNT_ID=...
-   export TF_VAR_account_id=...         # 上と同じ
-   export AWS_ACCESS_KEY_ID=...         # R2 の S3 認証情報
-   export AWS_SECRET_ACCESS_KEY=...
-   ```
+1. [環境変数](#環境変数)のとおり `~/.config/marulabs/cloudflare.env` を用意します。
 
 2. state 用の R2 バケットを作ります（Terraform の外で一度だけ）。
 
    ```bash
-   npx wrangler r2 bucket create marulabs-tfstate
+   mise -E ops exec -- npx wrangler r2 bucket create marulabs-tfstate
    ```
 
-3. Terraform を初期化します。`backend.hcl.example` を `backend.hcl` にコピーしてアカウント ID を入れてから実行します。
+3. Terraform を初期化します。
 
    ```bash
-   cd terraform && terraform init -backend-config=backend.hcl
+   mise -E ops exec -- terraform -chdir=terraform init
    ```
 
 4. Worker 本体と D1 だけを先に作ります。カスタムドメインは Worker にコードが入ってから付けます。**plan の内容を必ず確認してください。**
 
    ```bash
-   terraform plan -target=cloudflare_worker.blog -target=cloudflare_d1_database.blog -out=first.tfplan
+   mise -E ops exec -- terraform -chdir=terraform plan -target=cloudflare_worker.blog -target=cloudflare_d1_database.blog -out=first.tfplan
    ```
 
    ```bash
-   terraform apply first.tfplan
+   mise -E ops exec -- terraform -chdir=terraform apply first.tfplan
    ```
 
-5. `terraform output -raw d1_database_id` の値を `wrangler.jsonc` の `database_id` に入れてコミットします。
-
-6. マイグレーションを適用してデプロイします（または `main` にプッシュして CI に任せます）。
+5. 次の値を `wrangler.jsonc` の `database_id` に入れてコミットします。
 
    ```bash
-   npm run build && npx wrangler d1 migrations apply DB --remote && npx wrangler deploy
+   mise -E ops exec -- terraform -chdir=terraform output -raw d1_database_id
    ```
 
-7. カスタムドメインを作成します。追加されるのが `cloudflare_workers_custom_domain.blog` だけであることを確認します。
+6. GitHub にデプロイ用の Secrets を登録します。
 
    ```bash
-   cd terraform && terraform plan -out=domain.tfplan
+   mise -E ops exec -- sh -c 'printf %s "$CLOUDFLARE_DEPLOY_TOKEN" | gh secret set CLOUDFLARE_API_TOKEN && printf %s "$CLOUDFLARE_ACCOUNT_ID" | gh secret set CLOUDFLARE_ACCOUNT_ID'
+   ```
+
+7. `main` にプッシュすると CI がマイグレーションとデプロイを行います。手元から行う場合は次のとおりです。
+
+   ```bash
+   npm run build && mise -E ops exec -- sh -c 'npx wrangler d1 migrations apply DB --remote && npx wrangler deploy'
+   ```
+
+8. カスタムドメインを作成します。追加されるのが `cloudflare_workers_custom_domain.blog` だけであることを確認します。
+
+   ```bash
+   mise -E ops exec -- terraform -chdir=terraform plan -out=domain.tfplan
    ```
 
    ```bash
-   terraform apply domain.tfplan
+   mise -E ops exec -- terraform -chdir=terraform apply domain.tfplan
    ```
 
-8. 確認します。
+9. 確認します。
 
    ```bash
    node scripts/smoke-test.ts https://blog.marulabs.dev
@@ -295,7 +340,7 @@ Cloudflare の API トークンは用途ごとに分けます。
 - **DNS レコードを Terraform に書かないでください。** カスタムドメインが自動で管理します。
 - コードとバインディングは Wrangler の担当です（`wrangler.jsonc`）。理由は [docs/DECISIONS.md](docs/DECISIONS.md) にあります。
 - **state:** R2 の非公開バケット `marulabs-tfstate`。リポジトリには置きません。R2 のトークンはこのバケットに限定します。
-- **変更の手順:** 必ず `plan` を確認してから `apply` します。既存リソースの破壊や置き換えが出たら止めてください。
+- **変更の手順:** 必ず `plan` を確認してから `apply` します。既存リソースの破壊や置き換えが出たら止めてください。コマンドは `mise -E ops exec -- terraform -chdir=terraform <サブコマンド>` の形で実行します。
 - Worker と D1 には `prevent_destroy` を付けています。
 
 ## アクセスカウンターの仕組み
@@ -314,21 +359,21 @@ UPDATE counters SET value = value + 1 WHERE name = 'pageviews' RETURNING value
 値を確認するには:
 
 ```bash
-npx wrangler d1 execute DB --remote --command "SELECT * FROM counters"
+mise -E ops exec -- npx wrangler d1 execute DB --remote --command "SELECT * FROM counters"
 ```
 
 ## 障害時の復旧
 
 | 症状                           | 確認すること                                              | 復旧                                                                                                                    |
 | ------------------------------ | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| デプロイ後にサイトが壊れた     | Actions のログ                                            | `npx wrangler rollback` で直前のバージョンに戻してから、`git revert` の PR をマージする                                 |
+| デプロイ後にサイトが壊れた     | Actions のログ                                            | `mise -E ops exec -- npx wrangler rollback` で直前のバージョンに戻してから、`git revert` の PR をマージする             |
 | 公開すべきでない内容を公開した | -                                                         | 下の「情報を公開してしまったとき」                                                                                      |
 | CI が赤く、デプロイされない    | 失敗したジョブ                                            | 公開境界の検査の失敗は、原因を直してください。検査を無効にしないでください                                              |
 | カウンターが `-------`         | `curl -i https://blog.marulabs.dev/api/counter`           | 503 なら D1 の無料枠の超過か障害。翌日 09:00 JST（00:00 UTC）に回復します。記事は読めます                               |
-| カウンターの値を失った         | D1 Time Travel（無料枠は 7 日）                           | `npx wrangler d1 time-travel restore DB --timestamp=<UNIX秒>`                                                           |
+| カウンターの値を失った         | D1 Time Travel（無料枠は 7 日）                           | `mise -E ops exec -- npx wrangler d1 time-travel restore DB --timestamp=<UNIX秒>`                                       |
 | ドメインにつながらない         | `terraform plan` の差分、ダッシュボードのカスタムドメイン | `terraform apply` で作り直します。DNS レコードを手で作らないでください                                                  |
 | API トークンの漏洩             | -                                                         | ダッシュボードで失効させ、新しいトークンを GitHub Secrets に登録します                                                  |
-| ローカルの作業環境を失った     | -                                                         | リポジトリを clone し、`backend.hcl` を作り直して `terraform init` します。state は R2 にあります                       |
+| ローカルの作業環境を失った     | -                                                         | リポジトリを clone して `mise install`、`cloudflare.env` を作り直して `terraform init` します。state は R2 にあります   |
 | state を壊した                 | R2 のオブジェクト                                         | `terraform import` で取り込み直します（D1: `<account_id>/<database_id>`、カスタムドメイン: `<account_id>/<domain_id>`） |
 
 ### 情報を公開してしまったとき
