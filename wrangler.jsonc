@@ -30,7 +30,8 @@
     {
       // Global per-location write cap. 1 write/s stays under the D1 free tier (100k/day).
       "name": "HIT_LIMITER",
-      "namespace_id": "1001",
+      // Counters are shared across the account by this ID, so avoid the docs' example value.
+      "namespace_id": "4771",
       "simple": { "limit": 60, "period": 60 },
     },
   ],

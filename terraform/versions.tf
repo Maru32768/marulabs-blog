@@ -11,8 +11,8 @@ terraform {
   # State lives in a private Cloudflare R2 bucket, never in this repository.
   # The endpoint and credentials come from the environment, see .mise.ops.toml.
   backend "s3" {
-    bucket                      = "marulabs-tfstate"
-    key                         = "marulabs-blog/terraform.tfstate"
+    bucket                      = "marulabs-blog-tfstate"
+    key                         = "terraform.tfstate"
     region                      = "auto"
     use_lockfile                = true
     use_path_style              = true

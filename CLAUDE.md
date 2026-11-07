@@ -67,10 +67,10 @@ tests/                 unit, worker, e2e, fixtures
 ツールと環境変数は mise で管理する。
 
 - バージョンは `.mise.toml`（どこまで自動で上げてよいか）と `mise.lock`（正確なバージョンとチェックサム）で決まる。バージョンを別の場所に書かない。`mise.lock` はコミットする
-- 秘密情報は `~/.config/marulabs/cloudflare.env` に置く。リポジトリの中には置かない
+- 秘密情報は `~/.config/marulabs-blog/ops.env` に置く。リポジトリの中には置かない
 - **`.env` を作らない。** Astro が値を静的 HTML に出力でき、Wrangler もトークンを読む
 - Cloudflare の認証情報が必要なコマンドは `mise -E ops exec -- <コマンド>` で実行する（`.mise.ops.toml`）。インフラの操作のときだけ付ける。`npm ci`、ビルド、テストに付けない
-- **秘密情報を表示しない。** `mise -E ops env` や `env`、`printenv` を実行しない。`cloudflare.env` の中身を読まない。確認が必要なら変数名だけを見る
+- **秘密情報を表示しない。** `mise -E ops env` や `env`、`printenv` を実行しない。`ops.env` の中身を読まない。確認が必要なら変数名だけを見る
 - CI で `ops` プロファイルを使わない
 
 ## テスト

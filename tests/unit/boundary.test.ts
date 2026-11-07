@@ -205,7 +205,7 @@ describe("source checks", () => {
       ".env",
       ".env.production",
       ".dev.vars",
-      "cloudflare.env",
+      "ops.env",
       ".mise.local.toml",
       "mise.local.toml",
       ".mise.ops.local.toml",

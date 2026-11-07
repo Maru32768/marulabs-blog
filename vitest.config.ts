@@ -20,7 +20,7 @@ export default defineConfig(async () => {
               miniflare: {
                 compatibilityDate: "2026-11-01",
                 d1Databases: ["DB"],
-                ratelimits: { HIT_LIMITER: { namespace_id: "1001", simple: { limit: 1000, period: 60 } } },
+                ratelimits: { HIT_LIMITER: { namespace_id: "4771", simple: { limit: 1000, period: 60 } } },
                 bindings: { COUNT_HOST: "blog.example.test", TEST_MIGRATIONS: migrations },
                 serviceBindings: {
                   ASSETS: () => new Response("static asset", { status: 200 }),
