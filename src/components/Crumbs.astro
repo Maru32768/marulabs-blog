@@ -1,4 +1,5 @@
 ---
+import { site } from "../data/site.ts";
 import Icon from "./Icon.astro";
 
 interface Props {
@@ -13,7 +14,7 @@ const { trail, heading } = Astro.props;
   <div>
     <nav class="crumbs-trail" aria-label="パンくずリスト">
       <Icon name="house" size={11} />
-      <a href="/">Maru's System Lab</a>
+      <a href="/">{site.title}</a>
       {trail.map((item, i) => (
         <>
           <span aria-hidden="true">›</span>

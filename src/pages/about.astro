@@ -5,14 +5,14 @@ import ListLayout from "../layouts/ListLayout.astro";
 
 <ListLayout
   title="このサイトについて"
-  description="Maru's System Lab の運営方針、記事の改訂ルール、連絡先、アクセスカウンターの仕組み。"
+  description={`${site.title} の運営方針、記事の改訂ルール、連絡先、アクセスカウンターの仕組み。`}
   nav="about"
   trail={[{ label: "このサイトについて" }]}
   heading="このサイトについて"
 >
   <section class="panel panel--light" aria-labelledby="about-h">
     <h2 id="about-h" class="tcat tcat--strong panel-title">
-      Maru's System Lab
+      {site.title}
     </h2>
     <div class="prose-box">
       <p>{site.welcome}</p>

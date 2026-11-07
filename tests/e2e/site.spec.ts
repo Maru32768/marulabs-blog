@@ -125,7 +125,7 @@ test.describe("article", () => {
 
   test("includes SEO metadata", async ({ page }) => {
     await page.goto(MAIN_ARTICLE);
-    await expect(page).toHaveTitle("PostgreSQLのMVCCとVACUUMの内部構造 — Maru's System Lab");
+    await expect(page).toHaveTitle("PostgreSQLのMVCCとVACUUMの内部構造 — Maru's Blog");
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       "href",
       `https://blog.marulabs.dev${MAIN_ARTICLE}`,

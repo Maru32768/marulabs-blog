@@ -8,6 +8,7 @@ interface Props {
 }
 
 const { lastUpdated } = Astro.props;
+const lastSpace = site.title.lastIndexOf(" ");
 ---
 
 <header class="hd">
@@ -15,7 +16,8 @@ const { lastUpdated } = Astro.props;
     <Icon name="chip" width={45} height={48} class="hd-logo" />
     <span class="hd-titles">
       <span class="hd-title">
-        Maru's <span class="hd-title-em">System</span> Lab
+        {site.title.slice(0, lastSpace + 1)}
+        <span class="hd-title-em">{site.title.slice(lastSpace + 1)}</span>
       </span>
       <span class="hd-tagline">
         <span class="only-desktop">{site.tagline}</span>

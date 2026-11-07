@@ -1,6 +1,6 @@
 # marulabs-blog
 
-技術ブログ「Maru's System Lab」（https://blog.marulabs.dev）の Public リポジトリ。
+技術ブログ「Maru's Blog」（https://blog.marulabs.dev）の Public リポジトリ。
 
 **このリポジトリのすべては公開情報です。** コミットした時点で公開されたものとして扱ってください。Web のビルド対象から外しても、GitHub 上の非公開性は保証されません。
 

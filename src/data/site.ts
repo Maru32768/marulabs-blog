@@ -1,5 +1,6 @@
 export const site = {
-  title: "Maru's System Lab",
+  /** The only place the site name is written. The header highlights its last word. */
+  title: "Maru's Blog",
   tagline: "Distributed Systems · Databases · Kernels · Networks",
   taglineShort: "Systems · DB · Kernels · Net",
   description: "ソフトウェアエンジニアの調査記録と設計ノート",
