@@ -1,10 +1,8 @@
 export const site = {
   /** The only place the site name is written. The header highlights its last word. */
   title: "Maru's Blog",
-  tagline: "Distributed Systems · Databases · Kernels · Networks",
-  taglineShort: "Systems · DB · Kernels · Net",
-  description: "ソフトウェアエンジニアの調査記録と設計ノート",
-  welcome: "ようこそ。分散システム・データベース・OS・ネットワークについての調査記録と設計ノートを置いています。",
+  /** Not shown on pages. Feeds and search engines require a description. */
+  description: "Maruの個人技術ブログ",
   url: "https://blog.marulabs.dev",
   author: "Maru",
   /** Displayed as 開設. The first year on the copyright line is derived from it. */

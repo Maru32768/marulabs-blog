@@ -23,7 +23,7 @@ interface Props {
 
 const {
   title,
-  description = `${site.description}。分散システム・データベース・OS・ネットワークの調査記録。`,
+  description = site.description,
   nav,
   noindex = false,
   noCount = false,
@@ -32,7 +32,7 @@ const {
 } = Astro.props;
 
 const articles = await getArticles();
-const fullTitle = title ? `${title} — ${site.title}` : `${site.title} — ${site.description}`;
+const fullTitle = title ? `${title} — ${site.title}` : site.title;
 const canonical = new URL(Astro.url.pathname, site.url).href;
 const ogImage = new URL("/og.png", site.url).href;
 ---

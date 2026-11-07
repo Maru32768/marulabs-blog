@@ -20,8 +20,7 @@ const notice = changelogEntries(articles)[0];
 ---
 
 <BaseLayout nav="home">
-  <div class="welcome" slot="strip">
-    <span>{site.welcome}</span>
+  <div class="stats-strip" slot="strip">
     <span>
       記事 <b>{stats.articles}</b> · 改訂 <b>{stats.revisions}</b> · カテゴリ <b>{stats.categories}</b> · 開設{" "}
       {site.launched.year}/{String(site.launched.month).padStart(2, "0")}

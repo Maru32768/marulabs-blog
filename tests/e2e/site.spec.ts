@@ -21,7 +21,7 @@ test.describe("home", () => {
     await expect(page.locator(".panel-note").first()).toContainText(`${FIXTURE_COUNT} 記事`);
     if (info.project.name === "desktop") {
       // 12 articles with revisions 3+2+1+1+2+4+2+1+1+1+1+1 = 20.
-      await expect(page.locator(".welcome")).toContainText(`記事 ${FIXTURE_COUNT} · 改訂 20 · カテゴリ 7`);
+      await expect(page.locator(".stats-strip")).toContainText(`記事 ${FIXTURE_COUNT} · 改訂 20 · カテゴリ 7`);
     }
     await expect(page.locator(".cat-grid.trow")).toHaveCount(7);
   });
@@ -36,7 +36,18 @@ test.describe("home", () => {
   test("does not contain features that were ruled out", async ({ page }) => {
     await page.goto("/");
     const text = await page.locator("body").innerText();
-    for (const removed of ["前回の訪問", "既読", "ログイン", "ユーザー登録", "コメント", "Lab Status", "下書き"]) {
+    for (const removed of [
+      "前回の訪問",
+      "既読",
+      "ログイン",
+      "ユーザー登録",
+      "コメント",
+      "Lab Status",
+      "下書き",
+      "設計ノート",
+      "Kernels",
+      "書き残す",
+    ]) {
       expect(text, removed).not.toContain(removed);
     }
   });

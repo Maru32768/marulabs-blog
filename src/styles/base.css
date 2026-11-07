@@ -129,13 +129,6 @@ svg {
   height: 48px;
 }
 
-.hd-titles {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-}
-
 .hd-title {
   color: #fff;
   font-family: Verdana, Tahoma, sans-serif;
@@ -150,19 +143,6 @@ svg {
 
 .hd-title-em {
   color: var(--c-amber);
-}
-
-.hd-tagline {
-  color: #a9bedf;
-  font-family: var(--font-pixel);
-  font-size: var(--fs-pixel);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.hd-sub {
-  color: #d2ddef;
-  font-size: var(--fs-small);
 }
 
 .hd-tools {
@@ -260,7 +240,7 @@ svg {
 }
 
 /* ===== Welcome strip ===== */
-.welcome {
+.stats-strip {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
@@ -496,7 +476,7 @@ svg {
     display: none;
   }
 
-  .welcome {
+  .stats-strip {
     display: none;
   }
 
@@ -581,7 +561,7 @@ svg {
 
   .hd,
   .nav,
-  .welcome,
+  .stats-strip,
   .content-side,
   .ft-bar,
   .ft,

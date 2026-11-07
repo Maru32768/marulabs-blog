@@ -14,16 +14,9 @@ const lastSpace = site.title.lastIndexOf(" ");
 <header class="hd">
   <a class="hd-brand" href="/">
     <Icon name="chip" width={45} height={48} class="hd-logo" />
-    <span class="hd-titles">
-      <span class="hd-title">
-        {site.title.slice(0, lastSpace + 1)}
-        <span class="hd-title-em">{site.title.slice(lastSpace + 1)}</span>
-      </span>
-      <span class="hd-tagline">
-        <span class="only-desktop">{site.tagline}</span>
-        <span class="only-mobile">{site.taglineShort}</span>
-      </span>
-      <span class="hd-sub only-desktop">{site.description}</span>
+    <span class="hd-title">
+      {site.title.slice(0, lastSpace + 1)}
+      <span class="hd-title-em">{site.title.slice(lastSpace + 1)}</span>
     </span>
   </a>
   <div class="hd-tools">

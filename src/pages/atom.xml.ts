@@ -29,7 +29,6 @@ export const GET: APIRoute = async () => {
   const body = `<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="ja">
   <title>${escapeXml(site.title)}</title>
-  <subtitle>${escapeXml(site.description)}</subtitle>
   <link href="${site.url}/"/>
   <link rel="self" href="${site.url}/atom.xml"/>
   <id>${site.url}/</id>

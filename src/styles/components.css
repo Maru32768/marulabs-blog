@@ -384,12 +384,6 @@
   font-size: var(--fs-small);
 }
 
-.profile-bio {
-  margin: 4px 0 0;
-  color: var(--c-text-2);
-  font-size: var(--fs-small);
-}
-
 .profile + .kv {
   padding-top: 0;
 }
