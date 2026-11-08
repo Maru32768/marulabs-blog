@@ -2,7 +2,8 @@ import { expect, test, type Page } from "@playwright/test";
 
 const search = async (page: Page, query: string) => {
   await page.goto(`/search/?q=${encodeURIComponent(query)}`);
-  await expect(page.locator("#search-status")).not.toHaveText(/検索中|キーワードを入力/);
+  // Generous: parallel workers all load the Pagefind WASM from one local dev server.
+  await expect(page.locator("#search-status")).not.toHaveText(/検索中|キーワードを入力/, { timeout: 20_000 });
   return page.locator(".result-title a").allTextContents();
 };
 

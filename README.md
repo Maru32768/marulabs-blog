@@ -84,6 +84,14 @@ npm run build:fixtures
 npx wrangler dev --assets dist-fixtures --var COUNT_HOST:localhost
 ```
 
+### 管理人のアイコンを更新する
+
+GitHub のプロフィール画像をサイト内に置いて配信しています。訪問者のブラウザが GitHub にリクエストしないようにするためです。プロフィール画像を変えたら取得し直します。
+
+```bash
+curl -sSL 'https://github.com/Maru32768.png?size=112' -o public/images/avatar.png
+```
+
 ### ツールを更新する
 
 `mise.lock` を最新にして、動作を確かめてからコミットします。メジャーバージョンをまたぐときは、先に `.mise.toml` を書き換えます。
@@ -122,6 +130,7 @@ mkdir -p ~/.config/marulabs-blog && install -m 600 ops.env.example ~/.config/mar
 - `npm ci`、ビルド、テストに `ops` を付けないでください。依存パッケージのスクリプトにトークンを渡さないためです。
 - `mise -E ops env` は秘密情報をそのまま表示します。ログや Issue に貼らないでください。`redact` が効くのは `mise run` の出力だけで、`mise exec` の出力は隠されません。
 - ファイルがないと `Field CLOUDFLARE_ACCOUNT_ID is not defined` で止まります。上のコマンドで作ってください。
+- `AWS_*` は Terraform 用トークンから導出しています（Access Key ID はトークンの ID、Secret はトークン値の SHA-256）。**トークンを作り直したら `AWS_*` も更新してください。**
 
 ## 記事を公開する
 
@@ -250,6 +259,14 @@ npm run test:e2e:update
 
 Private リポジトリへのアクセス権限はどのジョブにもありません。Actions は SHA で固定しています。ツールは `jdx/mise-action` が `.mise.toml` と `mise.lock` から入れます。`MISE_LOCKED=1` により、ロックにないバージョンやチェックサムの異なるものはエラーになります。CI では `ops` プロファイルを使いません。
 
+### プレビュー
+
+PR の `preview` ジョブは、本番に影響しないバージョンをアップロードして Version URL を発行します。URL は PR のジョブサマリーに出ます。
+
+URL は `pr-<番号>-marulabs-blog.maru32768.workers.dev` の形です。Cloudflare が `X-Robots-Tag: noindex` を付け、カウンターはこのホストでは数えません。
+
+Version URL にはアカウントの `workers.dev` サブドメインが必要です。このアカウントでは `maru32768` をダッシュボードで登録しています。Terraform provider にアカウントのサブドメインを管理するリソースがないので、Terraform の管理外です。サブドメインがないと URL は発行されず、ジョブは警告を出します。
+
 ### 必要な権限と Secrets
 
 GitHub の Repository secrets:
@@ -345,16 +362,16 @@ Cloudflare の API トークンは用途ごとに分けます。
 
 ## アクセスカウンターの仕組み
 
-`POST /api/counter` が累計を 1 増やして返し、`GET /api/counter` が読み取るだけです。表示するのは**サイト全体の累計ページビュー**で、訪問者数ではありません。
+`POST /api/counter` が累計を 1 増やして返し、`GET /api/counter` が読み取るだけです。数えるのは**トップページの表示回数**だけで、表示もトップページだけです。ほかのページは数えず、API も呼びません。訪問者数ではありません。
 
 ```sql
 UPDATE counters SET value = value + 1 WHERE name = 'pageviews' RETURNING value
 ```
 
 - **保存するもの:** 整数 1 つだけ。IP アドレスは読まず、Cookie もフィンガープリントも使いません。
-- **過剰カウント対策:** 同じタブの同じページは 30 分間数えません（sessionStorage）。自動化ブラウザ、既知のボット、他のオリジン、本番以外のホストからは数えません。さらにロケーションごとに毎分 60 件の上限があります。
+- **過剰カウント対策:** 同じブラウザは 1 日（JST）に 1 回だけ数えます。判定はブラウザが行い、localStorage に最後に数えた日付だけを書きます（サーバーには送りません）。Global Privacy Control が有効なブラウザでは数えません。自動化ブラウザ、既知のボット、他のオリジン、本番以外のホストからは数えません。さらにロケーションごとに毎分 60 件の上限があります。
 - **障害時:** API が落ちても、応答しなくても、記事の表示には影響しません。`/api/*` 以外は Worker を通らず配信され、カウンターの表示が `-------` になるだけです。
-- **料金:** 静的アセットへのリクエストは無料かつ無制限です。1 PV が D1 の 1 行書き込みで、無料枠は 1 日 10 万行です。
+- **料金:** 静的アセットへのリクエストは無料かつ無制限です。トップページの表示 1 回が D1 の 1 行書き込みで、無料枠は 1 日 10 万行です。
 
 値を確認するには:
 

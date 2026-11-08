@@ -373,6 +373,12 @@
   box-shadow: inset 1px 1px 0 #4a628a;
 }
 
+.avatar img {
+  display: block;
+  width: 56px;
+  height: 56px;
+}
+
 .profile-name {
   color: var(--c-heading-ui);
   font-size: var(--fs-ui);
@@ -516,12 +522,6 @@
 
 .group > summary::-webkit-details-marker {
   display: none;
-}
-
-.group-sub {
-  color: #dbe4f3;
-  font-size: var(--fs-small);
-  font-weight: normal;
 }
 
 .group-toggle {
@@ -1143,6 +1143,11 @@
   .panel-archive,
   .panel-info {
     display: none;
+  }
+
+  .avatar img {
+    width: 44px;
+    height: 44px;
   }
 
   .profile .kv,

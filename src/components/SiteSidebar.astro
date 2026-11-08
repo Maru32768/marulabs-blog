@@ -4,14 +4,15 @@ import { archiveMonths, archiveUrl, articleUrl, changelogEntries, tagCounts, tag
 import type { Article } from "../lib/collection.ts";
 import { formatShort } from "../lib/format.ts";
 import Counter from "./Counter.astro";
-import Icon from "./Icon.astro";
 import SidePanel from "./SidePanel.astro";
 
 interface Props {
   articles: Article[];
+  /** The access counter, shown on the home page only. */
+  counter?: boolean;
 }
 
-const { articles } = Astro.props;
+const { articles, counter = false } = Astro.props;
 const log = changelogEntries(articles);
 const tags = tagCounts(articles);
 const months = archiveMonths(articles);
@@ -23,7 +24,7 @@ const devlogCount = articles.filter((a) => a.data.category === "development-logs
 <SidePanel id="sb-me" title="管理人" class="panel-profile">
   <div class="profile">
     <div class="avatar">
-      <Icon name="avatar" size={56} label="Maruのアバター" />
+      <img src="/images/avatar.png" width="56" height="56" alt="Maruのアイコン" decoding="async" />
     </div>
     <div>
       <div class="profile-name">{site.author}</div>
@@ -31,8 +32,6 @@ const devlogCount = articles.filter((a) => a.data.category === "development-logs
     </div>
   </div>
   <dl class="kv">
-    <dt>興味</dt>
-    <dd>DB internals, OS, Networking, SRE</dd>
     <dt>開設</dt>
     <dd>
       {site.launched.year}年{site.launched.month}月
@@ -76,7 +75,7 @@ const devlogCount = articles.filter((a) => a.data.category === "development-logs
   </div>
 </SidePanel>
 
-<Counter />
+{counter && <Counter />}
 
 {tags.length > 0 && (
   <SidePanel id="sb-tag" title="タグ" class="panel-tags">
@@ -131,6 +130,6 @@ const devlogCount = articles.filter((a) => a.data.category === "development-logs
     <dt>ライセンス</dt>
     <dd>{site.license}</dd>
     <dt>計測</dt>
-    <dd>累計PVのみ。解析タグ・Cookieなし</dd>
+    <dd>トップページの表示回数のみ。解析タグ・Cookieなし</dd>
   </dl>
 </SidePanel>

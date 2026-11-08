@@ -15,8 +15,8 @@ interface Props {
   description?: string;
   nav: NavKey;
   noindex?: boolean;
-  /** Pages that should not add to the page view counter, such as the 404 page. */
-  noCount?: boolean;
+  /** Only the home page counts. Other pages neither count nor call the counter API. */
+  countView?: boolean;
   ogType?: "website" | "article";
   currentCategory?: string;
 }
@@ -26,7 +26,7 @@ const {
   description = site.description,
   nav,
   noindex = false,
-  noCount = false,
+  countView = false,
   ogType = "website",
   currentCategory,
 } = Astro.props;
@@ -60,7 +60,7 @@ const ogImage = new URL("/og.png", site.url).href;
     <meta name="twitter:card" content="summary_large_image" />
     <slot name="head" />
   </head>
-  <body id="top" data-no-count={noCount ? "" : undefined}>
+  <body id="top" data-count-view={countView ? "" : undefined}>
     <a class="skip-link" href="#main">
       本文へ移動
     </a>

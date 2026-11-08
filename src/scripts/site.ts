@@ -6,20 +6,28 @@
 const COUNTER_ENDPOINT = "/api/counter";
 const COUNTER_DIGITS = 7;
 const COUNTER_TIMEOUT_MS = 3000;
-const REPEAT_VIEW_WINDOW_MS = 30 * 60 * 1000;
+const COUNTED_KEY = "counter:last-counted";
+const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
 const NEW_WINDOW_MS = 14 * 24 * 60 * 60 * 1000;
 
+/** Today in JST, e.g. "2026-11-09". The site's day boundary is midnight JST. */
+function todayInJst(): string {
+  return new Date(Date.now() + JST_OFFSET_MS).toISOString().slice(0, 10);
+}
+
 /**
- * Reloads and back-and-forth navigation in the same tab count once per 30 minutes.
- * sessionStorage is per tab and is gone when the tab closes: no identifier, no cookie.
+ * Counts each browser at most once per day, across tabs. The browser decides: the only
+ * thing stored is the date of the last count, which is never sent to the server, so the
+ * server has nothing that could recognize a browser. See docs/DECISIONS.md.
  */
-function shouldCountView(path: string): boolean {
+function shouldCountToday(): boolean {
   if (navigator.webdriver) return false;
+  // Global Privacy Control is taken as an objection to being counted.
+  if ((navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl === true) return false;
   try {
-    const key = `pv:${path}`;
-    const last = Number(sessionStorage.getItem(key) ?? 0);
-    if (Date.now() - last < REPEAT_VIEW_WINDOW_MS) return false;
-    sessionStorage.setItem(key, String(Date.now()));
+    const today = todayInJst();
+    if (localStorage.getItem(COUNTED_KEY) === today) return false;
+    localStorage.setItem(COUNTED_KEY, today);
     return true;
   } catch {
     // Storage blocked: reading is always safe, counting is not.
@@ -29,8 +37,8 @@ function shouldCountView(path: string): boolean {
 
 async function updateCounter(): Promise<void> {
   const element = document.querySelector<HTMLElement>("[data-counter]");
-  const skip = document.body.hasAttribute("data-no-count");
-  const count = !skip && shouldCountView(location.pathname);
+  // Only the home page counts. Elsewhere this returns before calling the API at all.
+  const count = document.body.hasAttribute("data-count-view") && shouldCountToday();
   if (!count && !element) return;
 
   const controller = new AbortController();

@@ -19,7 +19,7 @@ const latest = articles.slice(0, LATEST_COUNT);
 const notice = changelogEntries(articles)[0];
 ---
 
-<BaseLayout nav="home">
+<BaseLayout nav="home" countView>
   <div class="stats-strip" slot="strip">
     <span>
       記事 <b>{stats.articles}</b> · 改訂 <b>{stats.revisions}</b> · カテゴリ <b>{stats.categories}</b> · 開設{" "}
@@ -89,7 +89,7 @@ const notice = changelogEntries(articles)[0];
       </div>
     </main>
     <aside class="content-side" aria-label="サイドバー">
-      <SiteSidebar articles={articles} />
+      <SiteSidebar articles={articles} counter />
     </aside>
   </div>
 </BaseLayout>

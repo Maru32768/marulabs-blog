@@ -44,10 +44,6 @@ export const icons = {
     "viewBox": "0 0 12 12",
     "body": "<rect x=\"2\" y=\"0\" width=\"8\" height=\"12\" fill=\"#56647c\"/><rect x=\"3\" y=\"1\" width=\"6\" height=\"10\" fill=\"#dfe5ee\"/><rect x=\"4\" y=\"3\" width=\"4\" height=\"1\" fill=\"#8b98ae\"/><rect x=\"4\" y=\"5\" width=\"4\" height=\"1\" fill=\"#8b98ae\"/><rect x=\"4\" y=\"7\" width=\"4\" height=\"1\" fill=\"#8b98ae\"/><rect x=\"4\" y=\"9\" width=\"2\" height=\"1\" fill=\"#8b98ae\"/>"
   },
-  "avatar": {
-    "viewBox": "0 0 16 16",
-    "body": "<rect x=\"0\" y=\"0\" width=\"16\" height=\"16\" fill=\"#22334f\"/><rect x=\"5\" y=\"1\" width=\"6\" height=\"1\" fill=\"#f2b544\"/><rect x=\"3\" y=\"2\" width=\"10\" height=\"1\" fill=\"#f2b544\"/><rect x=\"2\" y=\"3\" width=\"12\" height=\"2\" fill=\"#f2b544\"/><rect x=\"1\" y=\"5\" width=\"14\" height=\"6\" fill=\"#f2b544\"/><rect x=\"2\" y=\"11\" width=\"12\" height=\"2\" fill=\"#f2b544\"/><rect x=\"3\" y=\"13\" width=\"10\" height=\"1\" fill=\"#f2b544\"/><rect x=\"5\" y=\"14\" width=\"6\" height=\"1\" fill=\"#f2b544\"/><rect x=\"4\" y=\"3\" width=\"2\" height=\"1\" fill=\"#fbe3a4\"/><rect x=\"3\" y=\"4\" width=\"1\" height=\"1\" fill=\"#fbe3a4\"/><rect x=\"4\" y=\"6\" width=\"3\" height=\"3\" fill=\"#22334f\"/><rect x=\"9\" y=\"6\" width=\"3\" height=\"3\" fill=\"#22334f\"/><rect x=\"5\" y=\"7\" width=\"1\" height=\"1\" fill=\"#f2b544\"/><rect x=\"10\" y=\"7\" width=\"1\" height=\"1\" fill=\"#f2b544\"/><rect x=\"7\" y=\"7\" width=\"2\" height=\"1\" fill=\"#22334f\"/><rect x=\"6\" y=\"11\" width=\"4\" height=\"1\" fill=\"#7a4a00\"/>"
-  },
   "doc": {
     "viewBox": "0 0 12 12",
     "body": "<rect x=\"2\" y=\"0\" width=\"8\" height=\"12\" fill=\"#0b1222\"/><rect x=\"3\" y=\"1\" width=\"6\" height=\"10\" fill=\"#ffffff\"/><rect x=\"4\" y=\"3\" width=\"4\" height=\"1\" fill=\"#8b98ae\"/><rect x=\"4\" y=\"5\" width=\"4\" height=\"1\" fill=\"#8b98ae\"/><rect x=\"4\" y=\"7\" width=\"2\" height=\"1\" fill=\"#8b98ae\"/>"

@@ -8,8 +8,8 @@ test.describe("access counter", () => {
     await mockCounter(page, 12345);
     await page.goto("/");
     await expect(page.locator(counter)).toHaveText("0012345");
-    await expect(page.locator(".panel-counter")).toContainText("累計ページビュー");
-    await expect(page.locator(".panel-counter")).toContainText("訪問者数ではありません");
+    await expect(page.locator(".panel-counter")).toContainText("トップページの表示回数");
+    await expect(page.locator(".panel-counter")).toContainText("同じブラウザは1日1回まで");
   });
 
   test("automated browsers read but never count", async ({ page }) => {
@@ -37,16 +37,72 @@ test.describe("access counter", () => {
       await expect(page.locator(counter)).toHaveText(String(body.value).padStart(7, "0"));
     });
 
-    test("does not count a reload of the same page in the same tab", async ({ page }) => {
+    test("counts the home page once a day across tabs and never other pages", async ({ context }) => {
+      await asNormalVisitor(context);
+      const methods: string[] = [];
+      context.on("request", (request) => {
+        if (request.url().endsWith("/api/counter")) methods.push(request.method());
+      });
+      const first = await context.newPage();
+      await first.goto("/", { waitUntil: "networkidle" });
+      await first.reload({ waitUntil: "networkidle" });
+      const second = await context.newPage();
+      await second.goto("/", { waitUntil: "networkidle" });
+      for (const path of ["/about/", "/articles/", "/articles/postgres-mvcc/", "/search/"]) {
+        await second.goto(path, { waitUntil: "networkidle" });
+        await expect(second.locator(counter)).toHaveCount(0);
+      }
+      expect(methods).toEqual(["POST", "GET", "GET"]);
+    });
+
+    test("counts again after midnight JST", async ({ page }) => {
       await asNormalVisitor(page);
       const methods: string[] = [];
       page.on("request", (request) => {
         if (request.url().endsWith("/api/counter")) methods.push(request.method());
       });
-      await page.goto("/about/", { waitUntil: "networkidle" });
+      await page.clock.setFixedTime(new Date("2026-11-09T23:59:00+09:00"));
+      await page.goto("/", { waitUntil: "networkidle" });
+      await page.clock.setFixedTime(new Date("2026-11-10T00:01:00+09:00"));
       await page.reload({ waitUntil: "networkidle" });
-      await page.goto("/changelog/", { waitUntil: "networkidle" });
-      expect(methods).toEqual(["POST", "GET", "POST"]);
+      await page.reload({ waitUntil: "networkidle" });
+      expect(methods).toEqual(["POST", "POST", "GET"]);
+      expect(await page.evaluate(() => localStorage.getItem("counter:last-counted"))).toBe("2026-11-10");
+    });
+
+    test("does not count when Global Privacy Control is on", async ({ page }) => {
+      await asNormalVisitor(page);
+      await page.addInitScript(() => {
+        Object.defineProperty(navigator, "globalPrivacyControl", { get: () => true });
+      });
+      const methods: string[] = [];
+      page.on("request", (request) => {
+        if (request.url().endsWith("/api/counter")) methods.push(request.method());
+      });
+      await page.goto("/", { waitUntil: "networkidle" });
+      expect(methods).toEqual(["GET"]);
+      await expect(page.locator(counter)).toHaveText(/^\d{7}$/);
+    });
+
+    test("does not count, and still works, when storage is blocked", async ({ page }) => {
+      await asNormalVisitor(page);
+      await page.addInitScript(() => {
+        Object.defineProperty(window, "localStorage", {
+          get: () => {
+            throw new DOMException("blocked", "SecurityError");
+          },
+        });
+      });
+      const methods: string[] = [];
+      const errors: Error[] = [];
+      page.on("pageerror", (error) => errors.push(error));
+      page.on("request", (request) => {
+        if (request.url().endsWith("/api/counter")) methods.push(request.method());
+      });
+      await page.goto("/", { waitUntil: "networkidle" });
+      expect(methods).toEqual(["GET"]);
+      await expect(page.locator(counter)).toHaveText(/^\d{7}$/);
+      expect(errors).toEqual([]);
     });
 
     test("does not count the 404 page", async ({ page }) => {
@@ -59,16 +115,18 @@ test.describe("access counter", () => {
       expect(methods).toEqual([]);
     });
 
-    test("stores no cookies and nothing beyond the per-tab marker", async ({ page, context }) => {
+    test("stores no cookies and nothing but the date of the last count", async ({ page, context }) => {
       await asNormalVisitor(page);
+      await page.clock.setFixedTime(new Date("2026-11-09T23:30:00Z"));
       await page.goto("/", { waitUntil: "networkidle" });
       expect(await context.cookies()).toEqual([]);
       const storage = await page.evaluate(() => ({
-        local: Object.keys(localStorage),
+        local: Object.fromEntries(Object.entries(localStorage)),
         session: Object.keys(sessionStorage),
       }));
-      expect(storage.local).toEqual([]);
-      expect(storage.session).toEqual(["pv:/"]);
+      // 23:30 UTC is already the next day in JST.
+      expect(storage.local).toEqual({ "counter:last-counted": "2026-11-10" });
+      expect(storage.session).toEqual([]);
     });
   });
 

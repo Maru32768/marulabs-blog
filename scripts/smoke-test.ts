@@ -9,11 +9,21 @@ interface Check {
   path: string;
   status: number;
   contains?: string;
+  /** Must not be in the body. Checked as a browser would see it, after any edge rewriting. */
+  absent?: string;
 }
 
+const INJECTED_ANALYTICS = "cloudflareinsights";
+
+// Cloudflare only injects into responses to requests that look like a page view.
+const BROWSER_HEADERS = {
+  Accept: "text/html,application/xhtml+xml",
+  "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0 Safari/537.36",
+};
+
 const checks: Check[] = [
-  { path: "/", status: 200, contains: "Maru's" },
-  { path: "/articles/", status: 200, contains: "記事一覧" },
+  { path: "/", status: 200, contains: "Maru's", absent: INJECTED_ANALYTICS },
+  { path: "/articles/", status: 200, contains: "記事一覧", absent: INJECTED_ANALYTICS },
   { path: "/about/", status: 200, contains: "このサイトについて" },
   { path: "/search/", status: 200, contains: "サイト内検索" },
   { path: "/rss.xml", status: 200, contains: "<rss" },
@@ -25,10 +35,11 @@ const checks: Check[] = [
 ];
 
 async function attempt(check: Check): Promise<string | undefined> {
-  const response = await fetch(new URL(check.path, base), { redirect: "manual" });
+  const response = await fetch(new URL(check.path, base), { redirect: "manual", headers: BROWSER_HEADERS });
   const body = await response.text();
   if (response.status !== check.status) return `${check.path}: expected ${check.status}, got ${response.status}`;
   if (check.contains && !body.includes(check.contains)) return `${check.path}: missing "${check.contains}"`;
+  if (check.absent && body.includes(check.absent)) return `${check.path}: must not contain "${check.absent}"`;
   return undefined;
 }
 

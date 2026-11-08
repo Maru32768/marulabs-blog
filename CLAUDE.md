@@ -41,6 +41,7 @@ tests/                 unit, worker, e2e, fixtures
 - React などのクライアントフレームワークを入れない。JavaScript は段階的な拡張に限る。**JS なしでも記事は読めること**
 - クライアントの JS は `src/scripts/` に置く。`site.ts` は全ページ、`article.ts` は記事ページ、`search.ts` は検索ページ
 - `<script>` は外部ファイルにする（CSP が `script-src 'self'`）
+- ページの `Cache-Control` の `no-transform` を外さない。ゾーンの解析スクリプトが挿入される（`docs/DECISIONS.md`）
 - 数値や履歴はすべて Markdown から生成する。**ダミーデータを表示しない**
 - `getStaticPaths` はスコープの外へ巻き上げられる。ローカル定数を参照せず、モジュールからインポートする
 - HTML 圧縮の影響で、改行だけの空白は消える。インラインの要素の間に空白が要るときは `{" "}` を書く

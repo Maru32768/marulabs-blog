@@ -24,6 +24,7 @@ test.describe("home", () => {
       await expect(page.locator(".stats-strip")).toContainText(`記事 ${FIXTURE_COUNT} · 改訂 20 · カテゴリ 7`);
     }
     await expect(page.locator(".cat-grid.trow")).toHaveCount(7);
+    await expect(page.locator(".avatar img")).toHaveJSProperty("naturalWidth", 112);
   });
 
   test("shows the requested sections", async ({ page }) => {
@@ -47,6 +48,8 @@ test.describe("home", () => {
       "設計ノート",
       "Kernels",
       "書き残す",
+      "興味",
+      "データ・カーネル",
     ]) {
       expect(text, removed).not.toContain(removed);
     }
@@ -291,6 +294,15 @@ test.describe("site pages", () => {
     const response = await request.get("/about", { maxRedirects: 0 });
     expect(response.status()).toBe(307);
     expect(response.headers().location).toBe("/about/");
+  });
+
+  test("keeps the edge from rewriting pages, and only pages", async ({ request }) => {
+    for (const path of ["/", "/about/", "/nope/"]) {
+      expect((await request.get(path)).headers()["cache-control"], path).toContain("no-transform");
+    }
+    for (const path of ["/rss.xml", "/robots.txt", "/favicon.svg"]) {
+      expect((await request.get(path)).headers()["cache-control"], path).not.toContain("no-transform");
+    }
   });
 
   test("sends security headers on pages", async ({ request }) => {

@@ -118,7 +118,12 @@ jobs:
         run: npx wrangler versions upload --preview-alias "$ALIAS" --message "$ALIAS" | tee "$RUNNER_TEMP/upload.log"
       - name: Show the preview URL
         run: |
-          grep -Eo 'https://[^ ]+workers\.dev' "$RUNNER_TEMP/upload.log" | sed 's/^/Preview: /' >> "$GITHUB_STEP_SUMMARY" || true
+          url=$(grep -Eo 'https://[^ ]+workers\.dev' "$RUNNER_TEMP/upload.log" | head -1 || true)
+          if [ -n "$url" ]; then
+            echo "Preview: $url" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::warning::No preview URL was issued. The account needs a workers.dev subdomain, see README.md."
+          fi
 
   deploy:
     name: Deploy to production
