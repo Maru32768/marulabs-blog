@@ -33,9 +33,7 @@ const stats = siteStats(articles);
       {categoryGroups.map((group) => (
         <details class="group" id={group.id} open>
           <summary class="tcat">
-            <span>
-              {group.title} <span class="group-sub">— {group.sub}</span>
-            </span>
+            <span>{group.title}</span>
             <span class="group-toggle">
               <Icon name="minus" size={13} class="toggle-open" />
               <Icon name="plus" size={13} class="toggle-closed" />

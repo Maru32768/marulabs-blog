@@ -8,7 +8,7 @@ test.describe("access counter", () => {
     await mockCounter(page, 12345);
     await page.goto("/");
     await expect(page.locator(counter)).toHaveText("0012345");
-    await expect(page.locator(".panel-counter")).toContainText("累計ページビュー");
+    await expect(page.locator(".panel-counter")).toContainText("トップページの表示回数");
     await expect(page.locator(".panel-counter")).toContainText("訪問者数ではありません");
   });
 
@@ -37,16 +37,19 @@ test.describe("access counter", () => {
       await expect(page.locator(counter)).toHaveText(String(body.value).padStart(7, "0"));
     });
 
-    test("does not count a reload of the same page in the same tab", async ({ page }) => {
+    test("counts the home page once per tab and never other pages", async ({ page }) => {
       await asNormalVisitor(page);
       const methods: string[] = [];
       page.on("request", (request) => {
         if (request.url().endsWith("/api/counter")) methods.push(request.method());
       });
-      await page.goto("/about/", { waitUntil: "networkidle" });
+      await page.goto("/", { waitUntil: "networkidle" });
       await page.reload({ waitUntil: "networkidle" });
-      await page.goto("/changelog/", { waitUntil: "networkidle" });
-      expect(methods).toEqual(["POST", "GET", "POST"]);
+      for (const path of ["/about/", "/articles/", "/articles/postgres-mvcc/", "/search/"]) {
+        await page.goto(path, { waitUntil: "networkidle" });
+        await expect(page.locator(counter)).toHaveCount(0);
+      }
+      expect(methods).toEqual(["POST", "GET"]);
     });
 
     test("does not count the 404 page", async ({ page }) => {

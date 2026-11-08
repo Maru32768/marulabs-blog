@@ -24,6 +24,7 @@ test.describe("home", () => {
       await expect(page.locator(".stats-strip")).toContainText(`記事 ${FIXTURE_COUNT} · 改訂 20 · カテゴリ 7`);
     }
     await expect(page.locator(".cat-grid.trow")).toHaveCount(7);
+    await expect(page.locator(".avatar img")).toHaveJSProperty("naturalWidth", 112);
   });
 
   test("shows the requested sections", async ({ page }) => {
@@ -47,6 +48,8 @@ test.describe("home", () => {
       "設計ノート",
       "Kernels",
       "書き残す",
+      "興味",
+      "データ・カーネル",
     ]) {
       expect(text, removed).not.toContain(removed);
     }

@@ -3,13 +3,7 @@ import Crumbs from "../components/Crumbs.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
-<BaseLayout
-  title="ページが見つかりません"
-  description="お探しのページは見つかりませんでした。"
-  nav="none"
-  noindex
-  noCount
->
+<BaseLayout title="ページが見つかりません" description="お探しのページは見つかりませんでした。" nav="none" noindex>
   <div class="content">
     <main id="main" class="content-main">
       <Crumbs trail={[{ label: "404" }]} heading="ページが見つかりません" />

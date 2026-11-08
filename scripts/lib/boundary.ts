@@ -125,6 +125,7 @@ const ALLOWED_TOP_LEVEL = new Set([
   "changelog",
   "favicon.svg",
   "fonts",
+  "images",
   "index.html",
   "og.png",
   "pagefind",

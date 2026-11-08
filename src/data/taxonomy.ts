@@ -3,7 +3,6 @@ export const categoryGroups = [
   {
     id: "systems",
     title: "Systems",
-    sub: "データ・カーネル・ネットワーク",
     categories: [
       {
         slug: "distributed-systems",
@@ -34,7 +33,6 @@ export const categoryGroups = [
   {
     id: "engineering",
     title: "Engineering",
-    sub: "設計判断・信頼性・開発記録",
     categories: [
       {
         slug: "software-architecture",

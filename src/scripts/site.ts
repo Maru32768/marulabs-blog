@@ -29,8 +29,8 @@ function shouldCountView(path: string): boolean {
 
 async function updateCounter(): Promise<void> {
   const element = document.querySelector<HTMLElement>("[data-counter]");
-  const skip = document.body.hasAttribute("data-no-count");
-  const count = !skip && shouldCountView(location.pathname);
+  // Only the home page counts. Elsewhere this returns before calling the API at all.
+  const count = document.body.hasAttribute("data-count-view") && shouldCountView(location.pathname);
   if (!count && !element) return;
 
   const controller = new AbortController();
