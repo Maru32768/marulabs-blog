@@ -293,6 +293,15 @@ test.describe("site pages", () => {
     expect(response.headers().location).toBe("/about/");
   });
 
+  test("keeps the edge from rewriting pages, and only pages", async ({ request }) => {
+    for (const path of ["/", "/about/", "/nope/"]) {
+      expect((await request.get(path)).headers()["cache-control"], path).toContain("no-transform");
+    }
+    for (const path of ["/rss.xml", "/robots.txt", "/favicon.svg"]) {
+      expect((await request.get(path)).headers()["cache-control"], path).not.toContain("no-transform");
+    }
+  });
+
   test("sends security headers on pages", async ({ request }) => {
     const headers = (await request.get("/")).headers();
     expect(headers["content-security-policy"]).toContain("default-src 'self'");

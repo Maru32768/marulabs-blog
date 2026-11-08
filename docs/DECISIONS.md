@@ -54,6 +54,7 @@
 - **判断:** PR ごとに `wrangler versions upload --preview-alias pr-N` を実行する。同じリポジトリからの PR に限る。
 - **公開境界:** プレビューにも `verify` ジョブで検査した同じ `dist` を使う。そもそも PR の内容は Public リポジトリ上で公開済み。
 - **注意点:** Version URL は本番のバインディング（D1）を共有する。Worker は `COUNT_HOST` 以外のホストでは数えない。URL は公開されるが、全ページの canonical が本番を指す。
+- **前提:** Version URL にはアカウントの `workers.dev` サブドメインが必要。Worker の `workers_dev: false` とは別の設定で、未登録だと URL が発行されない（2026-11-08 に確認）。
 - **代替案:** Workers Previews は独立した環境を作れるが、この規模では設定が増えるだけなので使わない。
 
 ## インフラ
@@ -80,7 +81,7 @@
 - **認証情報:** mise の `ops` プロファイルが環境変数で渡す。リポジトリには置かない。アカウント ID も `AWS_ENDPOINT_URL_S3` で渡すので、リポジトリに現れない。
 - **state の中身:** このスタックの state に API トークンや秘密値は入らない。それでも ID などの情報を含むので Public リポジトリには置かない。
 - **代替案:** HCP Terraform は外部サービスへの依存が増える。ローカル state はマシンの故障で失う。
-- **注意点:** HashiCorp は S3 バックエンドを Amazon S3 に対してのみテストしている。R2 は `If-None-Match` の条件付き書き込みに対応しているので、ロックファイル方式は動作する想定。実機の確認結果は README に記録する。
+- **確認したこと:** HashiCorp は S3 バックエンドを Amazon S3 に対してのみテストしているが、R2 でも state の保存とロックの取得・解放が動くことを 2026-11-08 に実機で確認した。
 
 ### Terraform の plan と apply は CI で実行しない
 
@@ -91,6 +92,21 @@
 
 - **判断:** CI に渡すのはデプロイ用の最小権限トークン（Workers Scripts と D1 の編集）だけ。Zone や DNS の権限は Terraform 用のトークンにのみ付ける。
 - **理由:** Public リポジトリの CI が漏れても、既存の DNS 設定には触れられないようにするため。
+
+## 配信
+
+### Cloudflare の解析スクリプトをこのサイトでは止める
+
+- **事象:** `marulabs.dev` のゾーンで Web Analytics の自動挿入が有効で、本番の HTML に `cloudflareinsights` のスクリプトが挿入された。ブラウザから見たリクエストにだけ挿入されるので、ローカルや `curl` のテストでは見つからなかった。CSP がブロックするのでデータは送られないが、全ページでコンソールエラーが出て、サイトの「解析タグなし」という記述とも食い違う。
+- **判断:** ページの応答に `Cache-Control: no-transform` を付ける（`public/_headers`）。ゾーンの設定は他のサイトにも効くので変えない。
+- **トレードオフ:** エッジでの圧縮も止まるので、HTML の転送量が増える（実測: トップページ 4.8 KB → 25.4 KB）。CSS、JS、RSS などは圧縮されたまま。
+- **代替案:** Configuration Rule の `disable_rum` なら圧縮を維持できるが、トークンに `Zone > Config Rules > Edit` を足し、ゾーンの `http_config_settings` フェーズ全体を Terraform で所有する必要がある。既存のルールを消す恐れがあるので先に中身を確認すること。HTML の圧縮が問題になったら移行する。
+- **既知の制限:** `_headers` で末尾スラッシュのないパスを表せないので、`/nope` のような URL の 404 ページには挿入される（CSP がブロックする）。
+- **再発の検知:** `scripts/smoke-test.ts` がブラウザと同じヘッダーでリクエストして、スクリプトがないことを確認する。
+
+### 平文の HTTP をリダイレクトしない
+
+- **理由:** `.dev` は HSTS preload の対象なので、主要なブラウザは常に HTTPS で接続する。リダイレクトするゾーン設定（Always Use HTTPS）は他のサイトにも効くので変えない。
 
 ## 命名
 

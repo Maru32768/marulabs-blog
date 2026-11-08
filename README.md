@@ -122,6 +122,7 @@ mkdir -p ~/.config/marulabs-blog && install -m 600 ops.env.example ~/.config/mar
 - `npm ci`、ビルド、テストに `ops` を付けないでください。依存パッケージのスクリプトにトークンを渡さないためです。
 - `mise -E ops env` は秘密情報をそのまま表示します。ログや Issue に貼らないでください。`redact` が効くのは `mise run` の出力だけで、`mise exec` の出力は隠されません。
 - ファイルがないと `Field CLOUDFLARE_ACCOUNT_ID is not defined` で止まります。上のコマンドで作ってください。
+- `AWS_*` は Terraform 用トークンから導出しています（Access Key ID はトークンの ID、Secret はトークン値の SHA-256）。**トークンを作り直したら `AWS_*` も更新してください。**
 
 ## 記事を公開する
 
@@ -249,6 +250,12 @@ npm run test:e2e:update
 | `deploy`    | `main`              | D1 マイグレーション、検査済みの `dist` のデプロイ、スモークテスト |
 
 Private リポジトリへのアクセス権限はどのジョブにもありません。Actions は SHA で固定しています。ツールは `jdx/mise-action` が `.mise.toml` と `mise.lock` から入れます。`MISE_LOCKED=1` により、ロックにないバージョンやチェックサムの異なるものはエラーになります。CI では `ops` プロファイルを使いません。
+
+### プレビュー
+
+PR の `preview` ジョブは、本番に影響しないバージョンをアップロードして Version URL を発行します。URL は PR のジョブサマリーに出ます。
+
+Version URL には Cloudflare アカウントの `workers.dev` サブドメインが必要です。未登録のアカウントでは URL が発行されず、ジョブは警告を出します。
 
 ### 必要な権限と Secrets
 
