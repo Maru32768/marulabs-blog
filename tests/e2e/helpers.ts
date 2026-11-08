@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import type { BrowserContext, Page } from "@playwright/test";
 
 /** Fixture articles, see tests/fixtures/articles. */
 export const FIXTURE_COUNT = 12;
@@ -13,8 +13,8 @@ export async function mockCounter(page: Page, value: number): Promise<void> {
 }
 
 /** Makes the browser look like a normal visitor to the counter. */
-export async function asNormalVisitor(page: Page): Promise<void> {
-  await page.addInitScript(() => {
+export async function asNormalVisitor(target: Page | BrowserContext): Promise<void> {
+  await target.addInitScript(() => {
     Object.defineProperty(navigator, "webdriver", { get: () => false });
   });
 }
