@@ -63,6 +63,8 @@ tests/                 unit, worker, e2e, fixtures
 - Frontmatter の仕様は `src/lib/article-schema.ts`。未知のキーはビルドエラー
 - `draft` や `status` のような「未公開」の概念をこのリポジトリに持ち込まない。ここにある記事はすべて公開済み
 - 改訂するときは `revision` を上げ、`updatedAt` と `changelog` を更新する。詳細は README
+- **Claude が本文の主な部分を書いた記事は `aiGenerated: true` にする。** 人が書いた記事を校正しただけなら `false`。迷ったら `true`。Claude が自分の判断で `false` にしない
+- 改訂で Claude が大きく書き足した場合も、`aiGenerated: true` に変える
 
 ## ツールと環境変数
 

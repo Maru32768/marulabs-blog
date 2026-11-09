@@ -9,6 +9,7 @@ category: development-logs
 tags: [jobq, sqlite, devlog]
 revision: 1
 kind: devlog
+aiGenerated: false
 
 ---
 

@@ -9,6 +9,7 @@ category: databases-storage
 tags: [postgresql, mvcc, vacuum, internals, pageinspect]
 revision: 3
 kind: analysis
+aiGenerated: false
 target: PostgreSQL 17
 verifiedOn: PostgreSQL 17 / Debian 13
 series:

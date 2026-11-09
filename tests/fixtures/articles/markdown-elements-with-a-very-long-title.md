@@ -9,6 +9,7 @@ category: software-architecture
 tags: [fixture, markdown, layout]
 revision: 2
 kind: explainer
+aiGenerated: true
 changelog:
   - revision: 2
     date: 2026-09-02T09:00:00+09:00

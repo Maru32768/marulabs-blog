@@ -2,6 +2,9 @@ import { z } from "astro/zod";
 import { categorySlugs, kindKeys } from "../data/taxonomy.ts";
 
 const slug = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "lower-kebab-case で指定してください");
+/** Added automatically to every article whose main draft was written by generative AI. */
+export const AI_GENERATED_TAG = "ai-generated";
+
 const tag = z.string().regex(/^[a-z0-9][a-z0-9.+#-]*$/, "タグは小文字英数字と . + # - のみです");
 
 /**
@@ -23,6 +26,12 @@ export const articleSchema = z
     tags: z.array(tag).min(1).max(12),
     revision: z.number().int().min(1),
     kind: z.enum(kindKeys),
+    /**
+     * true when generative AI (Claude) wrote the main draft, false when a person did and AI
+     * only helped (proofreading, small edits). Required, so it is always a conscious choice.
+     * true adds the ai-generated tag and a notice at the top of the article.
+     */
+    aiGenerated: z.boolean(),
     /** 対象: e.g. "PostgreSQL 17" */
     target: z.string().trim().min(1).optional(),
     /** 検証環境: e.g. "PostgreSQL 17 / Debian 13" */
@@ -53,6 +62,10 @@ export const articleSchema = z
       issue("publishedAt", "未来の publishedAt は使えません（予約公開はありません）");
     }
 
+    if (a.tags.includes(AI_GENERATED_TAG)) {
+      issue("tags", `${AI_GENERATED_TAG} タグは書かないでください。aiGenerated: true で自動的に付きます`);
+    }
+
     if (a.changelog) {
       const newest = Math.max(...a.changelog.map((c) => c.revision));
       if (newest !== a.revision) issue("changelog", `changelog の最大 revision (${newest}) が revision と一致しません`);
@@ -61,6 +74,7 @@ export const articleSchema = z
     } else if (a.revision > 1) {
       issue("changelog", "revision 2 以降は changelog に改訂理由を記録してください");
     }
-  });
+  })
+  .transform((a) => (a.aiGenerated ? { ...a, tags: [...a.tags, AI_GENERATED_TAG] } : a));
 
 export type ArticleData = z.infer<typeof articleSchema>;

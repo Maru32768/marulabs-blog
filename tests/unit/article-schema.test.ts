@@ -12,6 +12,7 @@ const valid = {
   tags: ["postgresql"],
   revision: 1,
   kind: "analysis",
+  aiGenerated: false,
 };
 
 describe("articleSchema", () => {
@@ -40,6 +41,7 @@ describe("articleSchema", () => {
     "tags",
     "revision",
     "kind",
+    "aiGenerated",
   ])("requires %s", (key) => {
     const { [key as keyof typeof valid]: _removed, ...rest } = valid;
     expect(articleSchema.safeParse(rest).success).toBe(false);
@@ -73,5 +75,20 @@ describe("articleSchema", () => {
     const changelog = [{ revision: 2, date: "2026-01-03T00:00:00+09:00", note: "修正" }];
     expect(articleSchema.safeParse({ ...valid, revision: 2, changelog }).success).toBe(true);
     expect(articleSchema.safeParse({ ...valid, revision: 3, changelog }).success).toBe(false);
+  });
+
+  it("adds the ai-generated tag when generative AI wrote the article", () => {
+    const parsed = articleSchema.parse({ ...valid, aiGenerated: true });
+    expect(parsed.tags).toEqual(["postgresql", "ai-generated"]);
+    expect(articleSchema.parse(valid).tags).toEqual(["postgresql"]);
+  });
+
+  it("rejects a hand-written ai-generated tag, so the flag and the tag cannot disagree", () => {
+    expect(articleSchema.safeParse({ ...valid, tags: ["postgresql", "ai-generated"] }).success).toBe(false);
+    expect(articleSchema.safeParse({ ...valid, aiGenerated: true, tags: ["ai-generated"] }).success).toBe(false);
+  });
+
+  it("rejects a non-boolean aiGenerated", () => {
+    expect(articleSchema.safeParse({ ...valid, aiGenerated: "yes" }).success).toBe(false);
   });
 });

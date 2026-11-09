@@ -188,6 +188,7 @@ category: databases-storage # src/data/taxonomy.ts
 tags: [postgresql, mvcc] # 小文字。1〜12個
 revision: 1
 kind: analysis # analysis 解析 / design 設計 / explainer 解説 / incident 障害調査 / devlog
+aiGenerated: false # 生成AI（Claude）が主に作成したら true。ai-generated タグと記事冒頭の注記が自動で付く
 # 以下は任意
 target: PostgreSQL 17 # 対象
 verifiedOn: PostgreSQL 17 / Debian 13 # 検証環境
@@ -197,7 +198,9 @@ changelog: [] # revision 2 以降は必須
 ---
 ```
 
-不正な値や未知のキーはビルドエラーになります。本文で使える記法:
+不正な値や未知のキーはビルドエラーになります。
+
+`aiGenerated` はすべての記事で必須です。本文の主な部分を生成AI（Claude）が書いたら `true`、人が書いて AI は校正や小さな手直しだけなら `false` にします。迷ったら `true` にします。`ai-generated` タグは自動で付くので、`tags` には書きません（書くとビルドエラーになります）。本文で使える記法:
 
 ````markdown
 ```c title="src/foo.h（抜粋）"

@@ -130,6 +130,25 @@
   margin-bottom: 18px;
 }
 
+.ai-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: -6px 0 18px;
+  padding: 6px 10px;
+  background: var(--c-row-soft);
+  border: 1px solid var(--c-pager-border);
+  color: var(--c-text-2);
+  font-family: var(--font-ui);
+  font-size: var(--fs-small);
+  line-height: 1.6;
+}
+
+.ai-note svg {
+  flex: none;
+  margin-top: 3px;
+}
+
 .key-points {
   margin: 0 0 24px;
   background: var(--c-row-soft);
