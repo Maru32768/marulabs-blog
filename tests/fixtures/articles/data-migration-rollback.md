@@ -9,6 +9,7 @@ category: performance-reliability
 tags: [migration, rollback, expand-contract]
 revision: 1
 kind: design
+aiGenerated: false
 
 ---
 

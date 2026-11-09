@@ -137,6 +137,17 @@ test.describe("article", () => {
     expect(await page.evaluate(() => navigator.clipboard.readText())).toContain("typedef struct HeapTupleFields");
   });
 
+  test("marks articles written mainly by generative AI", async ({ page }) => {
+    await page.goto(LONG_ARTICLE);
+    await expect(page.locator(".ai-note")).toContainText("生成AI（Claude）が主に作成");
+    await expect(page.locator(".art-tags .tag", { hasText: "ai-generated" })).toHaveCount(1);
+    await page.goto(MAIN_ARTICLE);
+    await expect(page.locator(".ai-note")).toHaveCount(0);
+    await expect(page.locator(".art-tags .tag", { hasText: "ai-generated" })).toHaveCount(0);
+    await page.goto("/tags/ai-generated/");
+    await expect(page.locator(".thread-grid.trow")).toHaveCount(1);
+  });
+
   test("includes SEO metadata", async ({ page }) => {
     await page.goto(MAIN_ARTICLE);
     await expect(page).toHaveTitle("PostgreSQLのMVCCとVACUUMの内部構造 — Maru's Blog");

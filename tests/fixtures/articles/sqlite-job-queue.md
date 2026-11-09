@@ -9,6 +9,7 @@ category: distributed-systems
 tags: [sqlite, job-queue, at-least-once, wal]
 revision: 4
 kind: design
+aiGenerated: false
 changelog:
   - revision: 4
     date: 2026-10-28T00:12:00+09:00

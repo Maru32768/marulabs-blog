@@ -9,6 +9,7 @@ category: distributed-systems
 tags: [raft, consensus, replication]
 revision: 1
 kind: analysis
+aiGenerated: false
 
 ---
 

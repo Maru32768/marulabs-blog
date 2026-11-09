@@ -9,6 +9,7 @@ category: software-architecture
 tags: [go, plan9, assembler, toolchain]
 revision: 1
 kind: analysis
+aiGenerated: false
 
 ---
 

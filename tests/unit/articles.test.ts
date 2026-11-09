@@ -33,6 +33,7 @@ function article(slug: string, overrides: Partial<ArticleData> = {}): ArticleLik
       tags: ["a"],
       revision: 1,
       kind: "analysis",
+      aiGenerated: false,
       ...overrides,
     },
   };

@@ -9,6 +9,7 @@ category: operating-systems
 tags: [linux, ext4, fsync, filesystem]
 revision: 1
 kind: explainer
+aiGenerated: false
 
 ---
 

@@ -9,6 +9,7 @@ category: networking
 tags: [bun, dd-trace-js, http, tcpdump]
 revision: 2
 kind: incident
+aiGenerated: false
 changelog:
   - revision: 2
     date: 2026-10-19T00:12:00+09:00

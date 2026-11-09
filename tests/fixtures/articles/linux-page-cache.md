@@ -9,6 +9,7 @@ category: operating-systems
 tags: [linux, page-cache, mmap, writeback]
 revision: 2
 kind: explainer
+aiGenerated: false
 changelog:
   - revision: 2
     date: 2026-11-03T00:12:00+09:00
